@@ -1,13 +1,13 @@
 {
-  "slug": "__SLUG__",
-  "title": "__TITLE__",
-  "description": "__DESCRIPTION__",
-  "framework": "vite",
+  "slug": "shard-dominion-fable",
+  "title": "Shard Dominion: Fable",
+  "description": "Classic sci-fi RTS on Aether Prime — bake-off build 4, from the Fable build package (deterministic sim, phase gates)",
+  "framework": "vite-phaser",
   "category": "arcade",
   "supportsMobile": true,
   "version": "0.1.0",
   "emoji": "🎮",
   "entry": "index.html",
   "buildCommand": "npm run build",
-  "repo": "Brynrg/__SLUG__"
+  "repo": "Brynrg/shard-dominion-fable"
 }
