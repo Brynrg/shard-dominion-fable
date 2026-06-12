@@ -1,0 +1,20 @@
+{
+  "titan_worm": {
+    "hp": 1200, "vulnerableOnlyDuringEmerge": true, "moveSpeedUnderSand": 2.0,
+    "spawnRegions": "DEEP_SAND only", "maxActive": 2, "respawnSecMin": 90, "respawnSecMax": 180,
+    "senseRadiusTiles": 20,
+    "vibrationWeightsPerTick": { "thumper": 50, "harvester_harvesting": 10, "vehicle_moving": 3, "infantry_moving": 1 },
+    "emergeTelegraphSec": 2.0, "swallowsPerCycle": 3, "satedDespawnSecMin": 120, "satedDespawnSecMax": 240,
+    "cannotEnter": ["ROCK", "DUNE", "CLIFF"]
+  },
+  "thumper": { "cost": 50, "deploySec": 2, "activeSec": 30, "sandOnly": true },
+  "shard_bloom": {
+    "spawnWeighting": "depleted field centers on SAND/DEEP_SAND",
+    "spawnIntervalSecMin": 90, "spawnIntervalSecMax": 240,
+    "fuseSecMin": 60, "fuseSecMax": 120,
+    "blast": { "damage": 150, "type": "EXPLOSIVE", "radiusTiles": 2 },
+    "seed": { "densityMin": 300, "densityMax": 600, "radiusTiles": 4, "tileCap": 1000 },
+    "shootToDetonate": true,
+    "note": "ONLY source of density regeneration"
+  }
+}

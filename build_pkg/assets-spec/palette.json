@@ -1,0 +1,11 @@
+{
+  "terrain": { "sand": "#C8A86B", "deepSand": "#B08F52", "duneHighlight": "#E2C98F", "rock": "#6E665C", "cliff": "#4A443D", "shard": "#7FD4C1", "shardSparkle": "#B8F0E4", "trail": "#8A7E6B" },
+  "factionRamps": {
+    "magentaBand": ["#FF00FF","#E600E6","#CC00CC","#B300B3","#990099","#800080","#660066","#4D004D"],
+    "vanguard":  ["#9FE8EE","#5ED4DE","#18B7C4","#13929C","#0E6E78","#0A5158","#063A3F","#032528"],
+    "forge":     ["#F2B98C","#E89254","#D96A1F","#B45618","#7A3A12","#5C2C0E","#3F1E09","#241105"],
+    "phantom":   ["#C9BCE8","#A48BDE","#7C5BD4","#6247AB","#3A2A66","#2C2050","#1E1638","#120D22"],
+    "concordat": ["#F2F3F4","#DDDFE2","#C2C7CC","#9DA3A9","#6B7077","#52565C","#3A3D42","#232528"]
+  },
+  "ui": { "frame": "#2A2A30", "frameLight": "#4A4A55", "text": "#E8E4D8", "credits": "#7FD4C1", "powerOk": "#5ED45E", "powerBad": "#E04040", "warning": "#E0A030" }
+}

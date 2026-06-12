@@ -1,0 +1,30 @@
+{
+  "id": "v01", "title": "Landfall", "faction": "vanguard", "map": "maps/c01_landfall.json",
+  "briefing": {
+    "strategosText": [
+      "Charter window opens in six hours. The Concordat has graciously sold us coordinates that two other claimants also purchased.",
+      "Deploy the MCV on the northern shelf. Establish power, refining, and a standing watch. The ruins on this plateau belonged to the last charter-holder. Note the past tense.",
+      "Extraction is survival. Build the economy first; everything else is decoration."
+    ],
+    "portrait": "strategos_vanguard"
+  },
+  "startingForces": [
+    { "owner": "player", "unit": "mcv", "x": 20, "y": 14 },
+    { "owner": "player", "unit": "light_infantry", "x": 22, "y": 15 },
+    { "owner": "player", "unit": "light_infantry", "x": 22, "y": 16 },
+    { "owner": "player", "unit": "scout_cycle", "x": 23, "y": 14 }
+  ],
+  "startingCredits": { "player": 3000, "perEnemy": 0 },
+  "techCeiling": { "player": 1, "enemies": 0 },
+  "objectives": [
+    { "id": "deploy", "type": "capture_target", "target": "self_conyard_deployed", "required": true, "text": "Deploy the MCV on the northern shelf" },
+    { "id": "econ", "type": "quota", "amountCr": 4000, "required": true, "text": "Refine 4000 credits of shards" },
+    { "id": "guard", "type": "protect_target", "target": "refinery", "required": true, "text": "Do not lose a refinery" }
+  ],
+  "triggers": [
+    { "id": "raid1", "when": { "type": "quotaPct", "pct": 40 }, "actions": [ { "type": "attackWave", "owner": "phantom_raiders", "units": [{ "unit": "wraith_raider", "n": 2 }], "entry": "east_edge", "target": "player_harvesters" }, { "type": "message", "text": "Strategos: Unmarked raiders. The Collective is sampling our response time. Give them data they will not enjoy." } ] },
+    { "id": "raid2", "when": { "type": "quotaPct", "pct": 80 }, "actions": [ { "type": "attackWave", "owner": "phantom_raiders", "units": [{ "unit": "wraith_raider", "n": 3 }, { "unit": "light_infantry", "n": 2 }], "entry": "east_edge", "target": "player_base" } ] },
+    { "id": "win", "when": { "type": "objectiveDone", "all": ["deploy", "econ", "guard"] }, "actions": [ { "type": "winCheck" } ] }
+  ],
+  "aiOverrides": { "phantom_raiders": { "scriptedWavesOnly": true } }
+}

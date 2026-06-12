@@ -55,3 +55,18 @@ A Vite + TypeScript scaffold consuming [speedrungames-sdk](https://github.com/Br
    deploy PR won't auto-merge.
 4. **No secrets in the repo.** The bundle ships to every player.
 5. **Never deploy by hand into the portal.** Push, or `npm run deploy:portal`.
+
+## Project spec (staged by orchestrator)
+
+The authoritative game spec is the **`build_pkg/`** directory (Shard Dominion
+Fable build package, staged verbatim from the source zip). Entry point:
+`build_pkg/HANDOFF.txt` (master build directive), then `build_pkg/README.md`
+and the reading order it prescribes (docs/00, 01, 02, 03, 10, 11). Balance
+data is pre-populated in `build_pkg/data/*.json`. Execute the package's own
+setup instructions within THIS repo. Where the package's repo-layout
+instructions conflict with this template's deploy contract (relative paths,
+`base: "./"`, game.manifest.json, CI), the deploy contract above wins.
+Definition of done: game live and playable at
+`https://speedrungames.net/games/shard-dominion-fable/` via push-to-main
+auto-deploy. INDEPENDENT BUILD: do not reuse code from the other
+shard-dominion workspaces.

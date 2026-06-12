@@ -1,0 +1,32 @@
+{
+  "id": "v04", "title": "The Auditor", "faction": "vanguard", "map": "maps/c04_auditor.json",
+  "briefing": {
+    "strategosText": [
+      "A Concordat audit station lands in the central basin within the hour. Chartered obligation: it must survive until upload completes. Both rivals are converging — its sensor manifest is worth more than the basin's shards.",
+      "We will protect it. And while we do, I will be reading what it transmits, and to whom. Obligations cut both ways."
+    ],
+    "concordatText": "NOTICE 11-A: Audit Station THEMIS-4 enjoys neutral status. Damage attribution will affect charter standing.",
+    "portrait": "strategos_vanguard"
+  },
+  "startingForces": [
+    { "owner": "player", "building": "construction_yard", "x": 50, "y": 88, "onSlab": true },
+    { "owner": "player", "building": "power_node", "x": 54, "y": 88, "onSlab": true },
+    { "owner": "player", "building": "refinery", "x": 50, "y": 93 },
+    { "owner": "player", "building": "barracks", "x": 56, "y": 92 },
+    { "owner": "player", "building": "light_factory", "x": 58, "y": 88 },
+    { "owner": "player", "building": "heavy_factory", "x": 62, "y": 88 },
+    { "owner": "neutral", "building": "audit_station", "x": 52, "y": 48, "tag": "themis", "hp": 2500 }
+  ],
+  "startingCredits": { "player": 8000, "perEnemy": 8000 },
+  "techCeiling": { "player": 2, "enemies": 2 },
+  "objectives": [
+    { "id": "protect", "type": "protect_target", "target": "themis", "timeLimitSec": 1500, "required": true, "text": "Audit Station THEMIS-4 must survive until upload completes (25:00)" }
+  ],
+  "triggers": [
+    { "id": "wave1", "when": { "type": "timer", "sec": 240 }, "actions": [ { "type": "attackWave", "owner": "forge", "units": [{ "unit": "combat_tank_f", "n": 2 }, { "unit": "trooper", "n": 3 }], "entry": "west_pass", "target": "themis" } ] },
+    { "id": "wave2", "when": { "type": "timer", "sec": 600 }, "actions": [ { "type": "attackWave", "owner": "phantom", "units": [{ "unit": "wraith_raider", "n": 4 }], "entry": "east_dunes", "target": "themis" } ] },
+    { "id": "wave3", "when": { "type": "timer", "sec": 1000 }, "actions": [ { "type": "attackWave", "owner": "forge", "units": [{ "unit": "combat_tank_f", "n": 4 }, { "unit": "siege_tank", "n": 2 }], "entry": "west_pass", "target": "themis" } ] },
+    { "id": "epilogue", "when": { "type": "timer", "sec": 1500 }, "actions": [ { "type": "winCheck", "ifObjectiveComplete": "protect" }, { "type": "message", "text": "Strategos: Upload complete. Destination decrypted: not Concordat central. A claimant relay. Ours rotate ciphers tonight — for all the good it has done so far." } ] }
+  ],
+  "aiOverrides": { "forge": { "scriptedWavesOnly": true }, "phantom": { "scriptedWavesOnly": true } }
+}

@@ -1,0 +1,39 @@
+{
+  "_spec": "every renderable. kind: vehicle(32 rot, hull[+turret]), infantry(8 dir x anim), building(states), effect(frames), tile, ui. canvas px at 1x. pipeline: docs/07.",
+  "vehicles": [
+    { "id": "scout_cycle",   "canvas": 48, "turret": false },
+    { "id": "wraith_raider", "canvas": 48, "turret": false },
+    { "id": "missile_quad",  "canvas": 48, "turret": false },
+    { "id": "bulwark_apc",   "canvas": 48, "turret": false },
+    { "id": "combat_tank",   "canvas": 48, "turret": true, "note": "one hull+turret set; faction variant via recolor + small turret addon meshes v/f/p" },
+    { "id": "siege_tank",    "canvas": 48, "turret": true },
+    { "id": "missile_tank",  "canvas": 48, "turret": true },
+    { "id": "harvester",     "canvas": 48, "turret": false, "extraStates": ["harvesting_intake_anim_4f"] },
+    { "id": "mcv",           "canvas": 48, "turret": false },
+    { "id": "resonance_tank","canvas": 48, "turret": true },
+    { "id": "behemoth",      "canvas": 64, "turret": true },
+    { "id": "puppeteer",     "canvas": 48, "turret": true },
+    { "id": "veil_projector","canvas": 48, "turret": false, "extraStates": ["field_active_loop_4f"] },
+    { "id": "carryall",      "canvas": 64, "turret": false, "air": true, "extraStates": ["carrying_harvester","carrying_vehicle"] },
+    { "id": "strike_wing",   "canvas": 48, "turret": false, "air": true }
+  ],
+  "infantry": [
+    { "id": "light_infantry" }, { "id": "trooper" }, { "id": "engineer" }, { "id": "thumper_team" },
+    { "id": "longbow_trooper" }, { "id": "scorcher" }, { "id": "saboteur", "extraStates": ["cloak_shimmer"] }
+  ],
+  "infantrySpec": { "canvas": 24, "dirs": 8, "anims": { "walk": 6, "idle": 2, "fire": 2, "death": 4 } },
+  "buildings": [
+    "construction_yard","power_node","refinery","silo","barracks","light_factory","heavy_factory",
+    "radar","gun_turret","rocket_turret","repair_pad","starport","airfield","command_nexus","wall",
+    "slab_2x2","slab_3x3","audit_station"
+  ],
+  "buildingStates": ["construct_1","construct_2","construct_3","normal","upgraded","damaged_overlay","critical_overlay","rubble"],
+  "effects": [
+    "muzzle_s","muzzle_m","muzzle_l","tracer","rocket_s","rocket_l","shell","stream_flame","sonic_line",
+    "explosion_s_8f","explosion_m_10f","explosion_l_12f","building_collapse_8f","cloak_shimmer_4f",
+    "worm_mound_loop_6f","worm_emerge_10f_96px","bloom_vent_loop_6f","bloom_blast_10f",
+    "selection_ring","rally_flag","capture_flash","repair_wrench_loop","phase_storm_field_loop","mirv_trail","orbital_beam_6f"
+  ],
+  "tiles": ["sand_autotile_16","deep_sand_autotile_16","rock_autotile_16","cliff_autotile_16","dune_4var","trail_4var","shard_overlay_3tiers","slab_tile","crater_3var","ruin_props_6var"],
+  "ui": ["sidebar_frame","tab_strip","build_button_64x48_per_buildable","radar_frame","cursor_set_9","portrait_strategos_vanguard","portrait_concordat","cameo_border","stance_icons_3","group_badges"]
+}

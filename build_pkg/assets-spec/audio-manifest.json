@@ -1,0 +1,13 @@
+{
+  "announcer_lines": [
+    "Construction complete", "Unit ready", "Building lost", "Base under attack",
+    "Harvester under attack", "Low power", "Silos needed", "Insufficient funds",
+    "Worm sign detected", "Superweapon charging", "Superweapon ready",
+    "Enemy superweapon launch detected", "Reinforcements have arrived",
+    "Mission accomplished", "Mission failed", "Upgrade complete", "Unit stolen", "Delivery inbound"
+  ],
+  "faction_ack_sets": { "perFaction": ["select_1","select_2","select_3","move_1","move_2","move_3","attack_1","attack_2","attack_3"], "direction": "vanguard: clipped naval brevity; forge: low gravel, foundry noise bed; phantom: whisper-comms, slight chorus fx" },
+  "sfx": ["ui_click","ui_place","ui_error","chime_complete","alarm_low_power","alarm_storage","radar_up","radar_down","fire_bullet","fire_rocket","fire_shell","fire_siege","fire_flame","fire_sonic","impact_metal","impact_ground","impact_flesh","explo_s","explo_m","explo_l","collapse","capture","sell","repair_loop","worm_rumble_loop","worm_roar","bloom_hiss","bloom_blast","carryall_loop","starport_horn","mirv_launch","beam_strike","phase_storm"],
+  "music": ["menu_theme","ambient_calm_1","ambient_calm_2","combat_intensity"],
+  "processing": "SFX: mono ogg, -16 LUFS. Voice: TTS -> bandpass 300-3400Hz -> soft compress (tools/voicefx.sh). Music: stereo ogg -14 LUFS."
+}

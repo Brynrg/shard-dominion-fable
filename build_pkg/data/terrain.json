@@ -1,0 +1,12 @@
+{
+  "tiles": {
+    "ROCK":      { "moveCost": 1.0,  "buildable": true,  "harvestable": false, "wormLegal": false, "blocksLOS": false },
+    "SAND":      { "moveCost": 1.0,  "buildable": false, "harvestable": true,  "wormLegal": true,  "blocksLOS": false },
+    "DEEP_SAND": { "moveCost": 1.25, "buildable": false, "harvestable": true,  "wormLegal": true,  "blocksLOS": false, "wormSpawn": true },
+    "DUNE":      { "moveCost": 1.6,  "buildable": false, "harvestable": false, "wormLegal": false, "blocksLOS": false, "visionBonus": 1 },
+    "CLIFF":     { "moveCost": -1,   "buildable": false, "harvestable": false, "wormLegal": false, "blocksLOS": true },
+    "TRAIL":     { "moveCost": 1.2,  "buildable": false, "harvestable": false, "wormLegal": false, "blocksLOS": false, "infantryOnly": true }
+  },
+  "shardDensity": { "tileMax": 1000, "harvestRatePerSec": 25, "visualThresholds": [500, 150] },
+  "economyConstants": { "harvesterCapacity": 700, "unloadPerSec": 100, "refineryStorage": 2000, "siloStorage": 1500, "repairHpPerSec": 20, "repairCrPerHp": 0.3, "sellRefundPct": 50 }
+}

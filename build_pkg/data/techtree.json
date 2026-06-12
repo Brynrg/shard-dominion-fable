@@ -1,0 +1,10 @@
+{
+  "buildOrderPrereqs": "see buildings.json prereq fields; this file defines upgrade unlock tables",
+  "upgrades": {
+    "construction_yard": { "cost": 800, "time": 25, "unlocks": ["rocket_turret", "slab_3x3", "nexus_path"] },
+    "barracks":          { "cost": 400, "time": 18, "unlocks": { "all": ["engineer_fast_note_none"], "vanguard": ["longbow_trooper"], "forge": ["scorcher"], "phantom": ["saboteur"], "common": ["thumper_team"] } },
+    "light_factory":     { "cost": 500, "time": 20, "unlocks": { "common": ["missile_quad"], "forge": ["bulwark_apc"] } },
+    "heavy_factory":     { "cost": 900, "time": 25, "unlocks": { "common": ["siege_tank", "missile_tank", "mcv", "carryall"], "phantom": ["veil_projector"] } }
+  },
+  "tier3": { "requires": ["conyard_upgraded", "heavy_factory_upgraded", "command_nexus"], "unlocks": "faction tier3 unit at heavy_factory + superweapon at nexus" }
+}
