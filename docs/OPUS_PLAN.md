@@ -1,55 +1,60 @@
-# Shard Dominion (game 4) — Opus Driver Plan
+# Shard Dominion (game 4) — Opus Driver Plan (iteration of the Fable plan)
 
-**Driver:** Opus (Claude). Fable authored the original plan but its first-pass build never
-shipped — it over-invested in a pure deterministic-sim foundation, broke the deploy contract
-(rewrote `ci.yml`, swapped the test runner to vitest), failed to compile (`hash.ts`), and
-never committed after ~7h. Opus takes over with the **opposite philosophy: ship a playable,
-deployable slice FIRST, then layer depth.** Salvage the good work; don't restart.
+**Driver:** Opus (Claude), continuing from Fable's design. **Keep the Fable vision; change the
+sequencing.** Fable's plan (`build_pkg/docs/`) is a genuinely strong faithful-Westwood RTS
+design — economy-is-the-game, optional-concrete-with-decay, power pressure, asymmetric factions,
+the planet-fights-back (Titan Worms / Shard Blooms), all on a deterministic sim core. The
+problem was never the design; it was **purity-first execution** — the build chased a perfect
+deterministic sim + full tooling and never shipped anything playable (broke the deploy contract,
+didn't compile, 0 commits in ~7h). Opus re-sequences it **ship-first**: get a playable slice
+LIVE, then build the Fable loop on top in green increments.
 
-## What exists (uncommitted in the workspace — salvage, don't delete)
-A well-architected deterministic sim core (~600 lines): `src/sim/core/` (fixedpoint, prng,
-hash, command-queue, entity-store, sim, tick-loop, types), a `src/view/scenes/game-scene.ts`,
-and tests. It does NOT compile and is NOT wired to anything visible.
+## Design source of truth (unchanged — this is still the game)
+`build_pkg/docs/` — esp. 00-vision (pillars), 02-mechanics (terrain/economy/concrete/power/
+construction/combat numbers), 03-factions, 06-ui. Build TOWARD Fable's **v1.0 ship target
+(its Phases 0-6): skirmish vs AI, core economy/base/combat/UI loop.** Carry the 5 pillars:
+(1) economy is the game, (2) meaningful tradeoffs not taxes, (3) asymmetry on a shared spine,
+(4) readable battlefield, (5) the planet fights back.
 
-## Hard constraints (deploy contract — non-negotiable, this is what Fable broke)
-- **Restore the template deploy contract:** `package.json#scripts.test` must be `playwright test`
-  (the portal CI runs it as the smoke gate). Keep the vitest determinism test, but under a
-  SEPARATE script (`test:sim`), never as `test`. Restore `.github/workflows/ci.yml` to the
-  template's job shape (the portal expects `build`, `typecheck`, `lint:paths`, `test`).
-- Keep `base: "./"` in vite.config, relative asset paths, `game.manifest.json`.
-- `npm run typecheck && npm run build && npm run lint:paths` must pass before every push.
-- Every push to main auto-deploys; ship in small green increments.
+## Salvage (uncommitted in the workspace — keep, don't delete)
+~600 lines of deterministic sim core: `src/sim/core/` (fixedpoint, prng, hash, command-queue,
+entity-store, sim, tick-loop, types). This is the correct architecture and Fable's best asset —
+route ALL gameplay through it (one source of truth, no parallel loops).
 
-## Tickets (execute in order — each ends green, committed, pushed)
+## Deploy contract (non-negotiable — Fable broke this; restore it)
+- `package.json#scripts.test` MUST be `playwright test` (portal CI smoke gate). Keep the vitest
+  determinism test but as `test:sim`, never as `test`. Restore template `.github/workflows/ci.yml`.
+- Keep `base: "./"`, relative asset paths, `game.manifest.json`. `npm run typecheck && build &&
+  lint:paths && test` green before every push. Push = auto-deploy; ship small green increments.
 
-### BUILD 1 — STABILIZE & SHIP A PLAYABLE SLICE (top priority; gets game 4 LIVE)
-1. **Restore deploy contract:** revert `ci.yml` to template; set `scripts.test` back to
-   `playwright test`; move the vitest determinism test to `scripts.test:sim`. Keep
-   `build/typecheck/lint:paths`.
-2. **Fix the compile error** in `src/sim/core/hash.ts` (TS2554) and any others until
-   `npm run typecheck` is clean.
-3. **Wire a minimal playable slice:** `src/main.ts` boots the deterministic sim's `tick-loop`
-   and renders sim state to the canvas — even a basic top-down view of the grid + a few moving
-   entities driven by the sim (not random). Show the speedrungames HUD/timer.
-4. **Green + ship:** `typecheck && build && lint:paths && test` all pass → commit → push.
-   **Definition of done for BUILD 1: the game is live and visibly running the sim at
-   https://speedrungames.net/games/shard-dominion-fable/** (it has never shipped a real build).
+## Tickets (in order; each ends green + committed + pushed)
 
-### BUILD 2 — RTS GAMEPLAY ON THE SALVAGED SIM
-5. **Entities + data:** load the faction/unit/building data; spawn a harvester + a combat unit
-   as real sim entities with components.
-6. **Movement:** click-to-move on the grid via the sim (the deterministic core already has the
-   primitives — use them, don't add a parallel system).
-7. **Economy loop:** harvester FSM (seek shard → mine → return → deposit → credits in HUD).
-8. **Combat:** basic targeting + damage between opposing factions; surface unit health.
-   Each ships as its own green increment.
+### BUILD 1 — STABILIZE & SHIP (get it LIVE; it has never shipped)
+1. Restore the deploy contract (test→playwright, vitest→`test:sim`, template ci.yml).
+2. Fix `src/sim/core/hash.ts` TS2554 + all compile errors → `npm run typecheck` clean.
+3. Wire `src/main.ts`: boot the sim `tick-loop`, render its state to a Phaser/canvas view —
+   a fixed-tick world with the deterministic PRNG visibly driving a few entities (NOT Math.random).
+   Show the speedrungames HUD/timer.
+4. Green (typecheck+build+lint:paths+test) → commit → push. **DONE = visibly running at
+   https://speedrungames.net/games/shard-dominion-fable/ .**
+
+### BUILD 2 — THE FABLE CORE LOOP (pillar 1: economy is the game)
+Build toward a playable skirmish spine using the 02-mechanics numbers:
+5. **Terrain + shard fields:** ROCK/SAND/DEEP_SAND tiles; sand carries shard density (0-1000/tile).
+6. **Harvester FSM + refinery:** harvester (cap 700) SEEK densest reachable → extract 25/sec →
+   return → deposit; refinery stores 2000, overflow lost; credits in the HUD storage bar.
+7. **Base building:** MCV deploys (3x3 ROCK) → Construction Yard; single construction thread;
+   grid placement; **optional concrete** (off-slab = 50% HP + decay) and **power** (deficit slows
+   production) — the two signature Fable tradeoffs.
+8. **Readable combat:** spawn opposing-faction units; legible RPS counters; targeting + damage +
+   health bars. Stub the planet-fights-back hooks (Shard Bloom → hazard tiles) for a later pass.
+Each step is its own green, committed, pushed increment.
 
 ## Notes for the builder
-- The sim core is the asset — route ALL gameplay through it (one source of truth). Do NOT add
-  a second render/update loop.
-- Pragmatism over purity: a playable, shippable slice beats an unshipped perfect sim. If a
-  determinism guarantee blocks shipping, relax it (move the determinism test to `test:sim`,
-  non-blocking) and note it — don't let it gate the deploy.
-- The bake-off first-pass comparison for games 1-3 is frozen by their `first-pass` tags; game 4
-  never shipped a first pass, so BUILD 1's ship becomes game 4's first real playable baseline,
-  attributed to Opus as driver.
+- Pragmatism over purity: a shipped playable slice beats an unshipped perfect sim. If the
+  determinism guarantee blocks shipping, keep `test:sim` non-blocking and proceed — don't let it
+  gate the deploy.
+- Reuse the sim core's primitives (entity-store, command-queue, fixed-point, PRNG). Do NOT write
+  a second update/render loop or a parallel grid.
+- Data-driven: gameplay numbers live in `build_pkg/data/*.json` / `src/data/` — wire those in,
+  don't hardcode.
