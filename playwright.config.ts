@@ -5,6 +5,9 @@ import { defineConfig } from "@playwright/test";
 // independent — serving at root is a faithful proxy for /games/<slug>/.
 export default defineConfig({
   testDir: "tests",
+  // Only run Playwright smoke specs (*.spec.ts). The vitest determinism tests
+  // (tests/sim/*.test.ts) run under `npm run test:sim`, not here.
+  testMatch: "**/*.spec.ts",
   timeout: 30_000,
   fullyParallel: true,
   use: { headless: true },
