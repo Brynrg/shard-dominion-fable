@@ -1,0 +1,58 @@
+{
+  "factions": {
+    "vanguard": {
+      "name": "Vanguard Enclave", "color": "#18B7C4",
+      "combatTank": "combat_tank_v", "scout": "scout_cycle",
+      "tier3": "resonance_tank",
+      "superweapon": { "id": "orbital_lance", "chargeSec": 480, "warnEnemiesAtSec": 60 },
+      "ai": {
+        "personality": "tech_standoff",
+        "pushThreshold": 1.6, "raidBias": 0.2, "defenseBias": 0.5, "techBias": 0.9,
+        "decisionNotes": "prioritize AA + missile_tank vs air/carryalls; longbow walls",
+        "openings": [
+          [{"build":"power_node"},{"build":"refinery"},{"build":"barracks"},{"build":"power_node"},{"build":"light_factory"},{"train":"scout_cycle","n":1},{"build":"refinery"},{"build":"heavy_factory"},{"upgrade":"barracks"}],
+          [{"build":"power_node"},{"build":"refinery"},{"build":"refinery"},{"build":"barracks"},{"build":"power_node"},{"build":"light_factory"},{"upgrade":"light_factory"},{"train":"missile_quad","n":3},{"build":"heavy_factory"}]
+        ]
+      }
+    },
+    "forge": {
+      "name": "Forge Dominion", "color": "#D96A1F",
+      "combatTank": "combat_tank_f", "scout": "scout_cycle",
+      "tier3": "behemoth",
+      "superweapon": { "id": "hammerfall_mirv", "chargeSec": 420, "warnEnemiesAtSec": 60, "scatterRadiusTiles": 5, "warheads": 5, "warhead": "mirv_warhead" },
+      "ai": {
+        "personality": "siege_turtle",
+        "pushThreshold": 2.0, "pushTimerSec": 480, "raidBias": 0.1, "defenseBias": 0.9, "techBias": 0.6,
+        "decisionNotes": "slab everything; turret belts; few large waves; rebuild stubbornly",
+        "openings": [
+          [{"build":"slab_2x2"},{"build":"power_node"},{"build":"refinery"},{"build":"barracks"},{"build":"gun_turret"},{"build":"power_node"},{"build":"light_factory"},{"build":"refinery"},{"build":"heavy_factory"}],
+          [{"build":"slab_2x2"},{"build":"power_node"},{"build":"refinery"},{"build":"refinery"},{"build":"barracks"},{"train":"trooper","n":4},{"build":"gun_turret"},{"build":"gun_turret"},{"build":"light_factory"}]
+        ]
+      }
+    },
+    "phantom": {
+      "name": "Phantom Collective", "color": "#7C5BD4",
+      "combatTank": "combat_tank_p", "scout": "wraith_raider",
+      "tier3": "puppeteer",
+      "superweapon": { "id": "phase_storm", "chargeSec": 360, "warnEnemiesAtSec": 45, "radiusTiles": 7, "freezeSec": 15 },
+      "ai": {
+        "personality": "raider",
+        "pushThreshold": 1.3, "raidBias": 0.9, "defenseBias": 0.3, "techBias": 0.7,
+        "decisionNotes": "constant wraith raids on harvesters; buy starport dips; scout 2x cadence",
+        "openings": [
+          [{"build":"power_node"},{"build":"refinery"},{"build":"light_factory"},{"train":"wraith_raider","n":3},{"build":"barracks"},{"build":"power_node"},{"build":"refinery"},{"train":"wraith_raider","n":2},{"build":"heavy_factory"}],
+          [{"build":"power_node"},{"build":"refinery"},{"build":"barracks"},{"build":"light_factory"},{"upgrade":"light_factory"},{"train":"missile_quad","n":2},{"train":"wraith_raider","n":2},{"build":"refinery"}]
+        ]
+      }
+    },
+    "concordat": {
+      "name": "Concordat Enforcement Legion", "color": "#C2C7CC", "campaignOnly": true,
+      "note": "reuses vanguard roster reskinned; superweapon access; appears missions 7-9"
+    }
+  },
+  "difficulty": {
+    "easy":   { "playerCostMult": 0.8, "aiCostMult": 1.2, "aiDecisionSec": 3.0 },
+    "normal": { "playerCostMult": 1.0, "aiCostMult": 1.0, "aiDecisionSec": 1.5 },
+    "hard":   { "playerCostMult": 1.2, "aiCostMult": 0.8, "aiDecisionSec": 0.75 }
+  }
+}

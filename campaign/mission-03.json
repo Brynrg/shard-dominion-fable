@@ -1,0 +1,30 @@
+{
+  "id": "v03", "title": "Salt the Ground", "faction": "vanguard", "map": "maps/c03_salt.json",
+  "briefing": {
+    "strategosText": [
+      "Forge Dominion has planted two forward refineries in the rift valley. Their tonnage curve will eclipse ours within a week. We are authorized to correct the curve.",
+      "Destroy both refineries. Their garrison rotates at dawn — and they reinforced it three hours ago, precisely when our strike authorization was coded. Interesting timing. I have begun keeping a list of interesting timings."
+    ],
+    "portrait": "strategos_vanguard"
+  },
+  "startingForces": [
+    { "owner": "player", "building": "construction_yard", "x": 14, "y": 80, "onSlab": true },
+    { "owner": "player", "building": "power_node", "x": 18, "y": 80, "onSlab": true },
+    { "owner": "player", "building": "refinery", "x": 14, "y": 85 },
+    { "owner": "player", "building": "barracks", "x": 20, "y": 84 },
+    { "owner": "player", "building": "light_factory", "x": 22, "y": 80 },
+    { "owner": "forge", "building": "refinery", "x": 64, "y": 40, "tag": "target_ref_1" },
+    { "owner": "forge", "building": "refinery", "x": 90, "y": 28, "tag": "target_ref_2" }
+  ],
+  "startingCredits": { "player": 6000, "perEnemy": 9000 },
+  "techCeiling": { "player": 2, "enemies": 2 },
+  "objectives": [
+    { "id": "ref1", "type": "destroy_target", "target": "target_ref_1", "required": true, "text": "Destroy the western Forge refinery" },
+    { "id": "ref2", "type": "destroy_target", "target": "target_ref_2", "required": true, "text": "Destroy the eastern Forge refinery" }
+  ],
+  "triggers": [
+    { "id": "counter", "when": { "type": "destroyed", "target": "target_ref_1" }, "actions": [ { "type": "attackWave", "owner": "forge", "units": [{ "unit": "combat_tank_f", "n": 3 }, { "unit": "trooper", "n": 4 }], "entry": "north_pass", "target": "player_base" }, { "type": "message", "text": "Strategos: Retaliation inbound on a pre-plotted route. They knew where we would be. Add it to the list." } ] },
+    { "id": "win", "when": { "type": "objectiveDone", "all": ["ref1", "ref2"] }, "actions": [ { "type": "winCheck" } ] }
+  ],
+  "aiOverrides": { "forge": { "personality": "siege_turtle" } }
+}

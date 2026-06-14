@@ -1,0 +1,33 @@
+{
+  "id": "v05", "title": "Blackout", "faction": "vanguard", "map": "maps/c05_blackout.json",
+  "briefing": {
+    "strategosText": [
+      "Our uplink cipher is gone — lifted clean. The trail ends at a Phantom listening post beyond the worm belt. No carryall lanes; the belt's storm column grounds everything. We cross the deep sand or we do not cross.",
+      "Thumper teams will buy passage. Spend them precisely. Take the post's archive intact: I want to know who has been selling our timings since landfall.",
+      "One more thing. If the archive says what I believe it says, the Charter was never a race. Steel yourself for the audit we were never meant to pass."
+    ],
+    "portrait": "strategos_vanguard"
+  },
+  "startingForces": [
+    { "owner": "player", "building": "construction_yard", "x": 12, "y": 100, "onSlab": true },
+    { "owner": "player", "building": "power_node", "x": 16, "y": 100, "onSlab": true },
+    { "owner": "player", "building": "refinery", "x": 12, "y": 105 },
+    { "owner": "player", "building": "barracks", "x": 18, "y": 104 },
+    { "owner": "player", "building": "light_factory", "x": 20, "y": 100 },
+    { "owner": "player", "building": "heavy_factory", "x": 24, "y": 100 },
+    { "owner": "phantom", "building": "radar", "x": 96, "y": 20, "tag": "listening_post", "note": "capture target — engineer required" }
+  ],
+  "startingCredits": { "player": 9000, "perEnemy": 10000 },
+  "techCeiling": { "player": 2, "enemies": 3 },
+  "objectives": [
+    { "id": "capture", "type": "capture_target", "target": "listening_post", "required": true, "text": "Capture the Phantom listening post with an Engineer (do NOT destroy it)" }
+  ],
+  "triggers": [
+    { "id": "worms", "when": { "type": "timer", "sec": 0 }, "actions": [ { "type": "spawnWorm", "region": "worm_belt" }, { "type": "spawnWorm", "region": "worm_belt" } ] },
+    { "id": "bloomfield", "when": { "type": "timer", "sec": 300 }, "actions": [ { "type": "spawnBloom", "region": "belt_east" } ] },
+    { "id": "destroyed_fail", "when": { "type": "destroyed", "target": "listening_post" }, "actions": [ { "type": "loseCheck" }, { "type": "message", "text": "Strategos: The archive burned with it. We have learned nothing, at full price." } ] },
+    { "id": "win", "when": { "type": "captured", "target": "listening_post" }, "actions": [ { "type": "winCheck" }, { "type": "message", "text": "Strategos: Decrypting... sender confirmed. The Concordat feeds the losing claimant our movements — every claimant, every cycle. Nobody wins; the world stays theirs. The Charter is a culling. Campaign continues in the next operation." } ] }
+  ],
+  "aiOverrides": { "phantom": { "personality": "raider", "techCeiling": 3 } },
+  "notes": "Introduces worms+thumpers+blooms under pressure; mission requires Phase 7 systems — schedule after P7 if building campaign early."
+}

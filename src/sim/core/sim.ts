@@ -5,7 +5,7 @@ import { fnv1aHashString } from './hash.js';
 import { EntityStore } from './entity-store.js';
 import { CommandQueue } from './command-queue.js';
 import { TickLoop } from './tick-loop.js';
-import type { Command, SimConfig, SimState } from './types.js';
+import type { Command, SimConfig, SimState, TerrainTile, TerrainType } from './types.js';
 
 export class Sim {
   private prng: PRNG;
@@ -21,6 +21,52 @@ export class Sim {
     this.entityStore = new EntityStore();
     this.commandQueue = new CommandQueue();
     this.tickLoop = new TickLoop(config.tickRate);
+    this.generateMap();
+  }
+
+  // Generate map with terrain and shard density
+  private generateMap(): void {
+    const { mapWidth, mapHeight } = this.config;
+    const tiles: TerrainTile[] = [];
+
+    // Simple terrain generation: mostly SAND, some ROCK, occasional DEEP_SAND
+    for (let y = 0; y < mapHeight; y++) {
+      for (let x = 0; x < mapWidth; x++) {
+        const noise = this.prng.next() * 100;
+
+        let type: TerrainType = 'SAND';
+        if (noise < 15) {
+          type = 'ROCK';
+        } else if (noise < 20) {
+          type = 'DEEP_SAND';
+        } else if (noise < 25) {
+          type = 'DUNE';
+        }
+
+        // Shard density: higher in SAND and DEEP_SAND
+        let shardDensity = 0;
+        if (type === 'SAND') {
+          shardDensity = Math.floor(this.prng.next() * 1000);
+        } else if (type === 'DEEP_SAND') {
+          shardDensity = Math.floor(this.prng.next() * 1000) + 500;
+        }
+
+        tiles.push({ type, shardDensity });
+      }
+    }
+
+    this.state = {
+      entities: [],
+      commands: [],
+      tick: 0,
+      rngState: this.getPRNGState(),
+      hash: this.hashState(),
+      map: this.state?.map ?? { 
+        width: this.config.mapWidth, 
+        height: this.config.mapHeight, 
+        tiles: [] 
+      },
+    };
   }
 
   // Enqueue a command
@@ -46,6 +92,11 @@ export class Sim {
       tick,
       rngState: this.getPRNGState(),
       hash: this.hashState(),
+      map: this.state?.map ?? {
+        width: this.config.mapWidth,
+        height: this.config.mapHeight,
+        tiles: [],
+      },
     };
   }
 
@@ -143,7 +194,7 @@ export class Sim {
     }
 
     // Serialize the state
-    serialize(): string {
+    public serialize(): string {
       if (!this.state) {
         return JSON.stringify({
           entities: [],

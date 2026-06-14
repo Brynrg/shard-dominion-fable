@@ -1,0 +1,29 @@
+{
+  "_format": "cost cr | buildTime s | hp | armorClass | speed tiles/s | vision tiles | weapon ref or null | producer | prereqUpgrade: producer must be upgraded | factions: omit = all",
+  "units": {
+    "light_infantry": { "cost": 60,  "buildTime": 4,  "hp": 45,  "armor": "NONE",  "speed": 1.4, "vision": 4, "weapon": "smg",        "producer": "barracks", "footprint": "infantry" },
+    "trooper":        { "cost": 90,  "buildTime": 6,  "hp": 55,  "armor": "NONE",  "speed": 1.1, "vision": 4, "weapon": "inf_rocket", "producer": "barracks", "footprint": "infantry" },
+    "engineer":       { "cost": 400, "buildTime": 10, "hp": 40,  "armor": "NONE",  "speed": 1.1, "vision": 3, "weapon": null,         "producer": "barracks", "special": "capture" },
+    "thumper_team":   { "cost": 50,  "buildTime": 4,  "hp": 35,  "armor": "NONE",  "speed": 1.3, "vision": 3, "weapon": null,         "producer": "barracks", "special": "deploy_thumper", "phase": 7 },
+    "scout_cycle":    { "cost": 250, "buildTime": 7,  "hp": 110, "armor": "LIGHT", "speed": 3.2, "vision": 6, "weapon": "scout_mg",   "producer": "light_factory", "factions": ["vanguard", "forge"] },
+    "wraith_raider":  { "cost": 230, "buildTime": 7,  "hp": 100, "armor": "LIGHT", "speed": 3.8, "vision": 6, "weapon": "scout_mg",   "producer": "light_factory", "factions": ["phantom"] },
+    "missile_quad":   { "cost": 350, "buildTime": 9,  "hp": 150, "armor": "LIGHT", "speed": 2.2, "vision": 5, "weapon": "quad_rockets", "producer": "light_factory", "prereqUpgrade": true },
+    "bulwark_apc":    { "cost": 500, "buildTime": 11, "hp": 260, "armor": "MEDIUM","speed": 2.4, "vision": 4, "weapon": null,         "producer": "light_factory", "prereqUpgrade": true, "factions": ["forge"], "special": "transport_5_infantry" },
+    "combat_tank_v":  { "cost": 700, "buildTime": 14, "hp": 360, "armor": "MEDIUM","speed": 1.8, "vision": 5, "weapon": "tank_shell", "producer": "heavy_factory", "factions": ["vanguard"], "turreted": true },
+    "combat_tank_f":  { "cost": 700, "buildTime": 14, "hp": 450, "armor": "MEDIUM","speed": 1.45,"vision": 5, "weapon": "tank_shell", "producer": "heavy_factory", "factions": ["forge"],   "turreted": true, "rofMult": 0.9 },
+    "combat_tank_p":  { "cost": 700, "buildTime": 14, "hp": 290, "armor": "MEDIUM","speed": 2.25,"vision": 5, "weapon": "tank_shell", "producer": "heavy_factory", "factions": ["phantom"], "turreted": true, "rofMult": 1.15 },
+    "siege_tank":     { "cost": 600, "buildTime": 13, "hp": 280, "armor": "MEDIUM","speed": 1.5, "vision": 5, "weapon": "siege_cannon", "producer": "heavy_factory", "prereqUpgrade": true, "turreted": true },
+    "missile_tank":   { "cost": 900, "buildTime": 16, "hp": 220, "armor": "MEDIUM","speed": 1.7, "vision": 6, "weapon": "missile_rack", "producer": "heavy_factory", "prereqUpgrade": true },
+    "harvester":      { "cost": 1200,"buildTime": 18, "hp": 700, "armor": "HEAVY", "speed": 1.2, "vision": 3, "weapon": null,         "producer": "heavy_factory", "special": "harvest_700" },
+    "mcv":            { "cost": 2000,"buildTime": 25, "hp": 600, "armor": "HEAVY", "speed": 0.9, "vision": 3, "weapon": null,         "producer": "heavy_factory", "prereqUpgrade": true, "special": "deploy_conyard" },
+    "longbow_trooper":{ "cost": 160, "buildTime": 8,  "hp": 50,  "armor": "NONE",  "speed": 0.9, "vision": 5, "weapon": "longbow_rocket", "producer": "barracks", "prereqUpgrade": true, "factions": ["vanguard"] },
+    "scorcher":       { "cost": 130, "buildTime": 7,  "hp": 70,  "armor": "NONE",  "speed": 1.2, "vision": 3, "weapon": "flamer",     "producer": "barracks", "prereqUpgrade": true, "factions": ["forge"] },
+    "saboteur":       { "cost": 600, "buildTime": 14, "hp": 45,  "armor": "NONE",  "speed": 1.5, "vision": 4, "weapon": "sabot_charge", "producer": "barracks", "prereqUpgrade": true, "factions": ["phantom"], "cloaked": true, "phase": 7 },
+    "veil_projector": { "cost": 800, "buildTime": 16, "hp": 240, "armor": "MEDIUM","speed": 1.4, "vision": 4, "weapon": null,         "producer": "heavy_factory", "prereqUpgrade": true, "factions": ["phantom"], "special": "cloak_field_4_when_stationary", "phase": 7 },
+    "resonance_tank": { "cost": 1100,"buildTime": 20, "hp": 300, "armor": "MEDIUM","speed": 1.6, "vision": 5, "weapon": "sonic_wave", "producer": "heavy_factory", "tier3": true, "factions": ["vanguard"], "phase": 7 },
+    "behemoth":       { "cost": 1600,"buildTime": 26, "hp": 1100,"armor": "HEAVY", "speed": 0.8, "vision": 5, "weapon": "behemoth_twin", "producer": "heavy_factory", "tier3": true, "factions": ["forge"], "turreted": true, "phase": 7 },
+    "puppeteer":      { "cost": 1000,"buildTime": 18, "hp": 200, "armor": "MEDIUM","speed": 1.6, "vision": 5, "weapon": "puppeteer_gas", "producer": "heavy_factory", "tier3": true, "factions": ["phantom"], "phase": 7 },
+    "carryall":       { "cost": 800, "buildTime": 14, "hp": 220, "armor": "LIGHT", "speed": 3.5, "vision": 5, "weapon": null,         "producer": "heavy_factory", "air": true, "special": "auto_logistics", "phase": 7 },
+    "strike_wing":    { "cost": 850, "buildTime": 15, "hp": 150, "armor": "LIGHT", "speed": 4.5, "vision": 6, "weapon": "strike_rockets", "producer": "airfield", "air": true, "factions": ["vanguard"], "special": "rearm_at_airfield", "phase": 7 }
+  }
+}

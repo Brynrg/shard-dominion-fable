@@ -1,0 +1,23 @@
+{
+  "_format": "cost | buildTime s | hp | footprint WxH tiles | power: + supply / - drain | prereq building list",
+  "buildings": {
+    "construction_yard": { "cost": 0,    "buildTime": 3,  "hp": 1500, "footprint": "3x3", "power": 0,    "prereq": [], "note": "from MCV deploy only", "upgrade": { "cost": 800, "time": 25, "unlocks": "tier2 buildings + slab_3x3" } },
+    "power_node":        { "cost": 300,  "buildTime": 8,  "hp": 500,  "footprint": "2x2", "power": 100,  "prereq": ["construction_yard"], "note": "output scales with hp ratio" },
+    "refinery":          { "cost": 1600, "buildTime": 20, "hp": 900,  "footprint": "3x3", "power": -30,  "prereq": ["power_node"], "storage": 2000, "freeUnits": ["harvester"], "freeUnitsPhase7": ["harvester", "carryall"] },
+    "silo":              { "cost": 150,  "buildTime": 5,  "hp": 300,  "footprint": "1x1", "power": -5,   "prereq": ["refinery"], "storage": 1500 },
+    "barracks":          { "cost": 300,  "buildTime": 10, "hp": 600,  "footprint": "2x2", "power": -10,  "prereq": ["power_node"], "upgrade": { "cost": 400, "time": 18, "unlocks": "advanced infantry" } },
+    "light_factory":     { "cost": 600,  "buildTime": 14, "hp": 700,  "footprint": "3x2", "power": -20,  "prereq": ["refinery"], "upgrade": { "cost": 500, "time": 20, "unlocks": "missile_quad / apc" } },
+    "heavy_factory":     { "cost": 1000, "buildTime": 18, "hp": 900,  "footprint": "3x3", "power": -35,  "prereq": ["light_factory"], "upgrade": { "cost": 900, "time": 25, "unlocks": "siege/missile tanks, mcv, tier3 w/ nexus" } },
+    "radar":             { "cost": 800,  "buildTime": 14, "hp": 500,  "footprint": "2x2", "power": -40,  "prereq": ["barracks"], "note": "minimap blips; offline under power deficit" },
+    "gun_turret":        { "cost": 500,  "buildTime": 10, "hp": 450,  "footprint": "1x1", "power": 0,    "prereq": ["barracks"], "weapon": "turret_gun", "note": "works without power" },
+    "rocket_turret":     { "cost": 800,  "buildTime": 12, "hp": 500,  "footprint": "1x1", "power": -15,  "prereq": ["radar", "conyard_upgraded"], "weapon": "turret_rockets", "note": "OFFLINE under deficit" },
+    "repair_pad":        { "cost": 800,  "buildTime": 14, "hp": 600,  "footprint": "3x3", "power": -15,  "prereq": ["heavy_factory"], "note": "repairs vehicles 30hp/s at 0.3cr/hp", "phase": 7 },
+    "starport":          { "cost": 1500, "buildTime": 22, "hp": 1000, "footprint": "3x3", "power": -50,  "prereq": ["heavy_factory", "radar"], "phase": 7 },
+    "airfield":          { "cost": 900,  "buildTime": 16, "hp": 600,  "footprint": "3x2", "power": -25,  "prereq": ["radar"], "factions": ["vanguard"], "note": "builds+rearms strike_wing", "phase": 7 },
+    "command_nexus":     { "cost": 2500, "buildTime": 30, "hp": 1200, "footprint": "3x3", "power": -80,  "prereq": ["conyard_upgraded", "heavy_factory_upgraded"], "note": "superweapon + tier3 unlock", "phase": 7 },
+    "wall":              { "cost": 50,   "buildTime": 1,  "hp": 300,  "footprint": "1x1", "power": 0,    "prereq": ["barracks"], "note": "immune to BULLET; blocks ground + direct fire" },
+    "slab_2x2":          { "cost": 20,   "buildTime": 1,  "hp": 0,    "footprint": "2x2", "power": 0,    "prereq": ["construction_yard"] },
+    "slab_3x3":          { "cost": 40,   "buildTime": 1,  "hp": 0,    "footprint": "3x3", "power": 0,    "prereq": ["conyard_upgraded"] }
+  },
+  "factionModifiers": { "forge": { "buildingHpMult": 1.2, "repairCostMult": 0.75 }, "phantom": { "unitCostMult": 0.9, "unitHpMult": 0.9 } }
+}

@@ -1,0 +1,9 @@
+{
+  "marketMultMin": 0.65, "marketMultMax": 1.35,
+  "stepIntervalSec": 30, "stepMin": 0.05, "stepMax": 0.15,
+  "sharedAcrossPlayers": true,
+  "deliverySecMin": 20, "deliverySecMax": 45,
+  "maxUnitsPerOrder": 6, "concurrentDeliveries": 1,
+  "purchasable": "any factory unit the buyer's tech level allows; no tier3, no mcv on easy maps flag",
+  "dropZone": "3x3 clear area adjacent to starport; delivery aborts+refunds if blocked at arrival"
+}

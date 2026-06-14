@@ -10,6 +10,17 @@ import { createStorage } from "speedrungames-sdk/storage";
 import { Sim } from "./sim/index.js";
 import "./styles.css";
 
+// Global for requestAnimationFrame
+declare global {
+  interface Window {
+    requestAnimationFrame: (callback: FrameRequestCallback) => number;
+    cancelAnimationFrame: (handle: number) => void;
+  }
+}
+
+// Fallback for node environment  
+declare const requestAnimationFrame: (callback: FrameRequestCallback) => number;
+
 // Must match game.manifest.json#slug. `pnpm new:game` substitutes this.
 const SLUG: string = "shard-dominion-fable";
 const UNSET_SLUG = "__SLUG__";
@@ -83,7 +94,7 @@ let lastTime = 0;
 const tickInterval = 1000 / SIM_CONFIG.tickRate;
 
 function gameLoop(timestamp: number) {
-  const elapsed = timestamp - lastTime;
+  const elapsed = timestamp - (lastTime || 0);
 
   if (elapsed >= tickInterval) {
     // Update sim tick
@@ -98,6 +109,52 @@ function gameLoop(timestamp: number) {
         // Clear canvas
         ctx.fillStyle = "#0b0b10";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw terrain tiles
+        const map = state.map;
+        if (map) {
+          const tileSize = Math.min(
+            canvas.width / map.width,
+            canvas.height / map.height
+          );
+          const offsetX = (canvas.width - map.width * tileSize) / 2;
+          const offsetY = (canvas.height - map.height * tileSize) / 2;
+
+          for (let y = 0; y < map.height; y++) {
+            for (let x = 0; x < map.width; x++) {
+              const tile = map.tiles[y * map.width + x];
+              const px = offsetX + x * tileSize;
+              const py = offsetY + y * tileSize;
+
+              // Draw tile based on type
+              if (tile.type === 'ROCK') {
+                ctx.fillStyle = "#4a4a4a";
+              } else if (tile.type === 'SAND') {
+                ctx.fillStyle = "#c2b280";
+              } else if (tile.type === 'DEEP_SAND') {
+                ctx.fillStyle = "#8b7355";
+              } else if (tile.type === 'DUNE') {
+                ctx.fillStyle = "#d2b48c";
+              } else {
+                ctx.fillStyle = "#0b0b10";
+              }
+
+              ctx.fillRect(px, py, tileSize, tileSize);
+
+              // Draw shard density indicator (small dot)
+              if (tile.shardDensity > 0) {
+                ctx.fillStyle = "#ffd700";
+                const dotSize = Math.min(tileSize * 0.2, 4);
+                ctx.fillRect(
+                  px + tileSize / 2 - dotSize / 2,
+                  py + tileSize / 2 - dotSize / 2,
+                  dotSize,
+                  dotSize
+                );
+              }
+            }
+          }
+        }
 
         // Draw entities
         for (const entity of state.entities) {
