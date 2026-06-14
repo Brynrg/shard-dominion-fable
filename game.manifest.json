@@ -5,5 +5,9 @@
   "framework": "vite",
   "category": "RTS",
   "emoji": "\u2694\ufe0f",
-  "supportsMobile": false
+  "supportsMobile": false,
+  "version": "0.1.0",
+  "entry": "index.html",
+  "buildCommand": "npm run build",
+  "repo": "Brynrg/shard-dominion-fable"
 }
