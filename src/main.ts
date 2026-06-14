@@ -11,7 +11,7 @@ import { Sim } from "./sim/index.js";
 import "./styles.css";
 
 // Must match game.manifest.json#slug. `pnpm new:game` substitutes this.
-const SLUG: string = "__SLUG__";
+const SLUG: string = "shard-dominion-fable";
 const UNSET_SLUG = "__SLUG__";
 
 // eslint-disable-next-line no-undef
