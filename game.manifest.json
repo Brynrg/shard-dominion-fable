@@ -2,8 +2,8 @@
   "slug": "shard-dominion-fable",
   "title": "Shard Dominion: Fable",
   "description": "A real-time strategy game where you harvest Aether Shards and expand your dominion across a procedurally generated world.",
-  "framework": "Vite + TypeScript",
+  "framework": "vite",
   "category": "RTS",
-  "emoji": "⚔️",
+  "emoji": "\u2694\ufe0f",
   "supportsMobile": false
 }
