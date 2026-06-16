@@ -201,7 +201,7 @@ export class Sim {
               for (let ty = 0; ty < map.height; ty++) {
                 for (let tx = 0; tx < map.width; tx++) {
                   const tile = map.tiles[ty * map.width + tx];
-                  if (tile.shardDensity > 0) {
+                  if (tile && tile.shardDensity > 0) {
                     const dist = Math.abs(x - tx) + Math.abs(y - ty);
                     if (dist < nearestDist) {
                       nearestDist = dist;
@@ -393,10 +393,10 @@ export class Sim {
     power.deficit = Math.max(0, demand - supply);
 
     // Calculate production multiplier
-    if (demand === 0) {
+    if (supply >= demand) {
       power.productionMultiplier = 1.0;
     } else {
-      power.productionMultiplier = Math.max(0.4, supply / demand);
+      power.productionMultiplier = 0.4;
     }
   }
 
