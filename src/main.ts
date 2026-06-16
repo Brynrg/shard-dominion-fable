@@ -13,13 +13,13 @@ import "./styles.css";
 // Global for requestAnimationFrame
 declare global {
   interface Window {
-    requestAnimationFrame: (callback: FrameRequestCallback) => number;
+    requestAnimationFrame: (callback: (timestamp: number) => void) => number;
     cancelAnimationFrame: (handle: number) => void;
   }
 }
 
-// Fallback for node environment  
-declare const requestAnimationFrame: (callback: FrameRequestCallback) => number;
+// Fallback for node environment
+declare const requestAnimationFrame: (callback: (timestamp: number) => void) => number;
 
 // Must match game.manifest.json#slug. `pnpm new:game` substitutes this.
 const SLUG: string = "shard-dominion-fable";
@@ -32,6 +32,9 @@ if (!root) throw new Error("#app element missing in index.html");
 // eslint-disable-next-line no-undef
 const canvas = document.createElement("canvas");
 canvas.className = "game-canvas";
+// Set canvas size
+canvas.width = 800;
+canvas.height = 600;
 root.appendChild(canvas);
 
 const hud = createHUD(root);
