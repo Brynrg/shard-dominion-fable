@@ -12,7 +12,8 @@ export interface Components {
   movable?:   { speed: number; path: TilePt[]; pathIdx: number; stuck: number };
   harvester?: { state: 'SEEK'|'HARVEST'|'RETURN'|'DOCK'; load: number;
                 fieldTarget?: TilePt; refineryId?: EntityId };
-  building?:  { onSlab: boolean; buildProgress: number; upgraded: boolean; powerDrain: number };
+  building?:  { onSlab: boolean; buildProgress: number; upgraded: boolean; powerDrain: number;
+                powerOutput?: number; isPowered?: boolean; hpDecayRate?: number };
   producer?:  { queue: string[]; progress: number; rally?: TilePt };
   attacker?:  { weaponId: string; cooldown: number; targetId?: EntityId; stance: 'AGGRESSIVE'|'GUARD'|'HOLD' };
   vision?:    { range: number };

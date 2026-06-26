@@ -7,9 +7,10 @@ import { CommandQueue } from './command-queue.js';
 import { TickLoop } from './tick-loop.js';
 import { tileToWorldCenter } from './coords.js';
 import { HarvesterSystem } from '../systems/harvester.js';
+import { BuildingSystem } from '../systems/building.js';
 import { loadTerrainConfigSync } from '../loaders/terrain-loader.js';
-import type { Command, SimConfig, SimState, HarvesterState, BuildingState, UnitState } from './types.js';
-import type { Components } from './entity.js';
+import type { Command, SimConfig, SimState, BuildingState, UnitState } from './types.js';
+import type { Components, TilePt } from './entity.js';
 
 export class Sim {
   private prng: PRNG;
@@ -19,6 +20,7 @@ export class Sim {
   private config: SimConfig;
   private state: SimState | null = null;
   private harvesterSystem: HarvesterSystem;
+  private buildingSystem: BuildingSystem;
   private terrainConfig: any;
 
   constructor(config: SimConfig) {
@@ -30,6 +32,7 @@ export class Sim {
     // Load terrain config and initialize systems
     this.terrainConfig = loadTerrainConfigSync();
     this.harvesterSystem = new HarvesterSystem(this, this.terrainConfig);
+    this.buildingSystem = new BuildingSystem(this);
     this.generateMap();
   }
 
@@ -110,6 +113,9 @@ export class Sim {
 
     // Update power
     this.updatePower();
+
+    // Update buildings
+    this.buildingSystem.update();
 
     // Update combat
     this.updateCombat();
@@ -242,14 +248,14 @@ export class Sim {
           // Find nearest tile with shard density > 0
           if (!harvester.targetTile) {
             // Find nearest tile with shard density
-            let nearestTile: Vector2 | null = null;
+            let nearestTile: TilePt | null = null;
             let nearestDist = Infinity;
 
             const map = this.state?.map;
             if (map) {
               for (let ty = 0; ty < map.height; ty++) {
-                for (let tx = 0; tx < map.width; tx++) {
-                  const tile = map.tiles[ty * map.width + tx];
+                for (let tx = 0; tx < map.w; tx++) {
+                  const tile = map.tiles[ty * map.w + tx];
                   if (tile && tile.shardDensity > 0) {
                     const dist = Math.abs(x - tx) + Math.abs(y - ty);
                     if (dist < nearestDist) {
@@ -295,7 +301,7 @@ export class Sim {
           // Extract shards
           const map = this.state?.map;
           if (map) {
-            const tileIndex = y * map.width + x;
+            const tileIndex = y * map.w + x;
             const tile = map.tiles[tileIndex];
             if (tile && tile.shardDensity > 0) {
               // Extract 25 density per tick
@@ -916,7 +922,12 @@ export class Sim {
     return this.tickLoop;
   }
 
-  // Get the config
+  // Get the building system
+  getBuildingSystem(): BuildingSystem {
+    return this.buildingSystem;
+  }
+
+  // Get the terrain config
   getConfig(): SimConfig {
     return this.config;
   }

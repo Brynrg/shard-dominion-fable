@@ -67,7 +67,8 @@ export interface Entity {
 export interface Tile { 
   terrain: string; // TerrainType;
   shard: number;   // 0-1000 per tile
-  explored: boolean[] /* per player */; 
+  explored: boolean[]; /* per player */
+  shardDensity?: number; // for harvester system
 }
 
 export interface PlayerState {

@@ -92,7 +92,6 @@ let moveFlash: { entityId: number; progress: number } | null = null;
 let isBuilding = false;
 let buildType: string | null = null;
 let placementPreview: { x: number; y: number; valid: boolean } | null = null;
-let isPlacing = false;
 
 function worldToScreen(x: number, y: number, cam: Camera) {
   const TILE_PX = 32;
@@ -389,32 +388,3 @@ if (typeof import.meta !== 'undefined') {
 }
 
 // ─── End gameplay ───────────────────────────────────────────────────────────
-// Handle clicks on the building HUD
-function handleSidebarClick(x: number, y: number): void {
-  const panelWidth = 150;
-  
-  // Check if click is within the sidebar
-  if (x < 0 || x >= panelWidth) return;
-  
-  // Check if click is on a button
-  const buttonHeight = 30;
-  const buttons = ['power_node', 'refinery', 'silo'];
-  const buttonSpacing = 10;
-  let yOffset = 80;
-  
-  for (const buildingType of buttons) {
-    const top = yOffset;
-    const bottom = yOffset + buttonHeight;
-    
-    if (y >= top && y < bottom) {
-      // Add this building type to the queue
-      const success = sim.getBuildingSystem().addToQueue(buildingType);
-      if (!success) {
-        console.log(`Cannot add ${buildingType} to queue`);
-      }
-      break;
-    }
-    
-    yOffset += buttonHeight + buttonSpacing;
-  }
-}
