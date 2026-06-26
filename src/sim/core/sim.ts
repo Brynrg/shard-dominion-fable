@@ -511,14 +511,7 @@ export class Sim {
     };
   }
 
-  // Update combat state
   private updateCombat(): void {
-    if (!this.state?.units || !this.state?.projectiles) return;
-
-    const units = this.state.units;
-    const projectiles = this.state.projectiles;
-    const tick = this.tickLoop.getTick();
-
     // Update projectiles
     for (const projectile of projectiles) {
       if (projectile.targetEntityId) {
