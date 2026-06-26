@@ -59,7 +59,7 @@ sim.getTickLoop().start();
 
 // Add entities to the sim - START with MCV
 const mcvPos = tileToWorldCenter(20, 20);
-const mcv = sim.getEntityStore().create({
+sim.getEntityStore().create({
   type: 'construction_yard',
   owner: 0,
   x: mcvPos.x,
