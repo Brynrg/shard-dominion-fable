@@ -11,6 +11,10 @@ import { Sim } from "./sim/index.js";
 import { tileToWorldCenter } from "./sim/core/coords.js";
 import { drawTerrain, drawEntities } from "./view/render.js";
 import type { Camera } from "./view/render.js";
+import type { SimState } from "./sim/core/types.js";
+import { CombatSystem } from "./sim/systems/combat.js";
+import { ProjectileSystem } from "./sim/systems/projectile.js";
+import { UnitProductionSystem } from "./sim/systems/unit-production.js";
 import "./styles.css";
 
 // Must match game.manifest.json#slug. `pnpm new:game` substitutes this.
@@ -76,7 +80,7 @@ if (state && state.players) {
 }
 
 // sim.enqueue({tick:1,playerId:0,type:'move',args:{ids:[hv],tx:30,ty:30}});  // temporary, proves motion
-sim.enqueue({ tick: 1, playerId: 0, type: 'move', args: [hv, 30, 30] });  // temporary, proves motion
+sim.enqueue({ tick: 1, playerId: 0, type: 'move', args: [1, 30, 30] });  // temporary, proves motion
 
 // Render loop: update sim and draw
 let lastTime = 0;
@@ -110,13 +114,13 @@ function screenToWorld(sx: number, sy: number, cam: Camera) {
   };
 }
 
-function handleCanvasClick(event: Event, isRightClick: boolean = false) {
+function handleCanvasClick(event: MouseEvent, isRightClick: boolean = false) {
   const canvas = event.target as HTMLCanvasElement;
   const rect = canvas.getBoundingClientRect();
   const clickX = event.clientX - rect.left;
   const clickY = event.clientY - rect.top;
   
-  if (event.shiftKey) {
+  if ((event as MouseEvent).shiftKey) {
     // Queue command for selected units
     const tx = Math.floor(clickX / 32);
     const ty = Math.floor(clickY / 32);
@@ -141,7 +145,7 @@ function handleCanvasClick(event: Event, isRightClick: boolean = false) {
     }
   } else {
     // Left click: selection
-    if (event.detail === 1) {
+    if ((event as MouseEvent).detail === 1) {
       // Single click - select/deselect unit
       const hoveredEntity = findEntityAtScreenPos(clickX, clickY);
       if (hoveredEntity !== null) {
@@ -156,7 +160,7 @@ function handleCanvasClick(event: Event, isRightClick: boolean = false) {
         bandBoxStart = { x: clickX, y: clickY };
         bandBoxEnd = { x: clickX, y: clickY };
       }
-    } else if (event.detail === 2) {
+    } else if ((event as MouseEvent).detail === 2) {
       // Double click - select same type
       const hoveredEntity = findEntityAtScreenPos(clickX, clickY);
       if (hoveredEntity !== null) {

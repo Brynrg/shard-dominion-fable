@@ -8,6 +8,9 @@ import { TickLoop } from './tick-loop.js';
 import { tileToWorldCenter } from './coords.js';
 import { HarvesterSystem } from '../systems/harvester.js';
 import { BuildingSystem } from '../systems/building.js';
+import { CombatSystem } from '../systems/combat.js';
+import { ProjectileSystem } from '../systems/projectile.js';
+import { UnitProductionSystem } from '../systems/unit-production.js';
 import { loadTerrainConfigSync } from '../loaders/terrain-loader.js';
 import type { Command, SimConfig, SimState, BuildingState, UnitState } from './types.js';
 import type { Components, TilePt } from './entity.js';
@@ -21,6 +24,9 @@ export class Sim {
   private state: SimState | null = null;
   private harvesterSystem: HarvesterSystem;
   private buildingSystem: BuildingSystem;
+  private combatSystem: CombatSystem;
+  private projectileSystem: ProjectileSystem;
+  private unitProductionSystem: UnitProductionSystem;
   private terrainConfig: any;
 
   constructor(config: SimConfig) {
@@ -33,6 +39,9 @@ export class Sim {
     this.terrainConfig = loadTerrainConfigSync();
     this.harvesterSystem = new HarvesterSystem(this, this.terrainConfig);
     this.buildingSystem = new BuildingSystem(this);
+    this.combatSystem = new CombatSystem(this);
+    this.projectileSystem = new ProjectileSystem(this);
+    this.unitProductionSystem = new UnitProductionSystem(this);
     this.generateMap();
   }
 
@@ -117,8 +126,14 @@ export class Sim {
     // Update buildings
     this.buildingSystem.update();
 
-    // Update combat
-    this.updateCombat();
+    // Update combat system
+    this.combatSystem.update();
+
+    // Update projectile system
+    this.projectileSystem.update();
+
+    // Update unit production system
+    this.unitProductionSystem.update();
 
     // Update state
     this.state = {
@@ -922,10 +937,7 @@ export class Sim {
     return this.tickLoop;
   }
 
-  // Get the building system
-  getBuildingSystem(): BuildingSystem {
-    return this.buildingSystem;
-  }
+
 
   // Get the terrain config
   getConfig(): SimConfig {
@@ -982,10 +994,36 @@ export class Sim {
       });
 
       return fnv1aHashString(stateStr);
-    }
+  }
 
-    // Serialize the state
-    public serialize(): string {
+  // Getters for systems
+  getBuildingSystem(): BuildingSystem {
+    return this.buildingSystem;
+  }
+
+  getCombatSystem(): CombatSystem {
+    return this.combatSystem;
+  }
+
+  getProjectileSystem(): ProjectileSystem {
+    return this.projectileSystem;
+  }
+
+  getUnitProductionSystem(): UnitProductionSystem {
+    return this.unitProductionSystem;
+  }
+
+  // Liveness hooks for Slice 4
+  getProjectileDrawCount(): number {
+    return this.projectileSystem.getProjectileDrawCount();
+  }
+
+  // Victory hook
+  __debugWinner(): number | null {
+    return this.combatSystem.getWinner();
+  }
+
+  public serialize(): string {
       if (!this.state) {
         return JSON.stringify({
           entities: [],
@@ -1013,4 +1051,4 @@ export class Sim {
       sim.setTickLoopState(parsed.tick);
       return sim;
     }
-}
+  }
