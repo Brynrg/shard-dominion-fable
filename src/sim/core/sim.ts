@@ -120,6 +120,7 @@ export class Sim {
       commands: this.commandQueue.getAll(),
       tick,
       rngState: this.getPRNGState(),
+      seed: this.config.seed,
       hash: this.hashState(),
       map: this.state?.map ?? {
         w: this.config.mapWidth,
@@ -141,28 +142,66 @@ export class Sim {
           const tx = command.args[1] as number;
           const ty = command.args[2] as number;
           
-          // Convert tile position to world position
-          const worldPos = tileToWorldCenter(tx, ty);
+          // For now, just set the target position for pathfinding
           const entity = this.entityStore.get(entityId);
           if (entity) {
-            entity.components.x = worldPos.x;
-            entity.components.y = worldPos.y;
+            // Convert tile position to world position (simple for now)
+            const worldPos = tileToWorldCenter(tx, ty);
+            
+            // Set entity component for target position (used in rendering)
+            if (!entity.components.path) {
+              entity.components.path = [];
+            }
+            
+            // Add target to path
+            entity.components.path.push({ x: worldPos.x, y: worldPos.y });
+            if (entity.components.path.length > 1) {
+              entity.components.path.shift(); // Keep only one target for now
+            }
+          }
+        }
+        break;
+      }
+      case 'stop': {
+        // Handle stop command: args = [entityId]
+        if (command.args.length >= 1) {
+          const entityId = command.args[0] as EntityId;
+          const entity = this.entityStore.get(entityId);
+          if (entity) {
+            // Clear the path
+            entity.components.path = [];
+          }
+        }
+        break;
+      }
+      case 'attack': {
+        // Handle attack command: args = [entityId, targetId]
+        if (command.args.length >= 2) {
+          const entityId = command.args[0] as EntityId;
+          const targetId = command.args[1] as EntityId;
+          const entity = this.entityStore.get(entityId);
+          if (entity) {
+            // Set target entity for attack
+            entity.components.targetId = targetId;
           }
         }
         break;
       }
       case 'harvest': {
-        const entity = this.entityStore.get(command.playerId);
-        if (entity) {
-          const harvesterState = this.state?.economy?.harvesters.find(
-            (h) => h.entityId === command.playerId
-          );
-          if (harvesterState) {
-            harvesterState.targetTile = {
-              x: command.args[0] as number,
-              y: command.args[1] as number,
-            };
-            harvesterState.state = 'SEEK';
+        // Handle harvest command: args = [entityId, fieldTarget]
+        if (command.args.length >= 2) {
+          const entityId = command.args[0] as EntityId;
+          const fieldTarget = { x: command.args[0] as number, y: command.args[1] as number };
+          const entity = this.entityStore.get(entityId);
+          if (entity) {
+            // Set harvester state to SEEK and field target
+            const harvesterState = this.state?.economy?.harvesters.find(
+              (h) => h.entityId === entityId
+            );
+            if (harvesterState) {
+              harvesterState.targetTile = fieldTarget;
+              harvesterState.state = 'SEEK';
+            }
           }
         }
         break;

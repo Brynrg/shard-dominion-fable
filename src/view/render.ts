@@ -81,7 +81,10 @@ export function drawEntities(
   entities: Entity[],
   cam: Camera,
   ctx: CanvasRenderingContext2D,
-  selection: Set<EntityId>
+  selection: Set<EntityId>,
+  bandBoxStart?: { x: number; y: number },
+  bandBoxEnd?: { x: number; y: number },
+  moveFlash?: { entityId: number; progress: number } | null
 ): void {
   for (const entity of entities) {
     const screenPos = worldToScreen(entity.components.x, entity.components.y, cam);
@@ -103,7 +106,31 @@ export function drawEntities(
     if (selection.has(entity.id)) {
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 2;
-      ctx.strokeRect(screenPos.sx - 8, screenPos.sy - 8, 16, 16);
+      if (entity.components.type === 'harvester') {
+        ctx.strokeRect(screenPos.sx - 8, screenPos.sy - 8, 16, 16);
+      } else if (entity.components.type === 'refinery') {
+        ctx.strokeRect(screenPos.sx - 10, screenPos.sy - 10, 20, 20);
+      } else {
+        ctx.strokeRect(screenPos.sx - 6, screenPos.sy - 6, 12, 12);
+      }
     }
+
+    // Draw move flash if entity has move command
+    if (moveFlash && moveFlash.entityId === entity.id) {
+      ctx.fillStyle = `rgba(255, 255, 0, ${0.5 + 0.5 * Math.sin(moveFlash.progress * Math.PI * 2)})`;
+      ctx.fillRect(screenPos.sx - 10, screenPos.sy - 2, 20, 4);
+    }
+  }
+
+  // Draw band box if active
+  if (bandBoxStart && bandBoxEnd) {
+    const width = bandBoxEnd.x - bandBoxStart.x;
+    const height = bandBoxEnd.y - bandBoxStart.y;
+    
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    ctx.strokeRect(bandBoxStart.x, bandBoxStart.y, width, height);
+    ctx.setLineDash([]);
   }
 }

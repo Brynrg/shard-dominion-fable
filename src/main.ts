@@ -87,12 +87,102 @@ sim.enqueue({ tick: 1, playerId: 0, type: 'move', args: [hv, 30, 30] });  // tem
 let lastTime = 0;
 const tickInterval = 1000 / SIM_CONFIG.tickRate;
 
+// Selection state
+let isBandBoxing = false;
+let bandBoxStart = { x: 0, y: 0 };
+let bandBoxEnd = { x: 0, y: 0 };
+let moveFlash: { entityId: number; progress: number } | null = null;
+
 function worldToScreen(x: number, y: number, cam: Camera) {
   const TILE_PX = 32;
   return { 
     sx: (x / 256 * TILE_PX - cam.x) * cam.zoom,
     sy: (y / 256 * TILE_PX - cam.y) * cam.zoom
   };
+}
+
+function screenToWorld(sx: number, sy: number, cam: Camera) {
+  const TILE_PX = 32;
+  return { 
+    tx: Math.floor((sx / cam.x + sx) * 256 / TILE_PX),
+    ty: Math.floor((sy / cam.y + sy) * 256 / TILE_PX)
+  };
+}
+
+function handleCanvasClick(event: Event, isRightClick: boolean = false) {
+  const canvas = event.target as HTMLCanvasElement;
+  const rect = canvas.getBoundingClientRect();
+  const clickX = event.clientX - rect.left;
+  const clickY = event.clientY - rect.top;
+  
+  if (event.shiftKey) {
+    // Queue command for selected units
+    const tx = Math.floor(clickX / 32);
+    const ty = Math.floor(clickY / 32);
+    
+    for (const entityId of selection) {
+      sim.enqueue({ tick: 1, playerId: 0, type: 'move', args: [entityId, tx, ty] });
+    }
+  } else if (isRightClick) {
+    // Right click: classify and enqueue command
+    const tx = Math.floor(clickX / 32);
+    const ty = Math.floor(clickY / 32);
+    
+    if (selection.size > 0) {
+      // Enqueue move command for selected units
+      for (const entityId of selection) {
+        sim.enqueue({ tick: 1, playerId: 0, type: 'move', args: [entityId, tx, ty] });
+      }
+      // Set move flash for one of the units
+      if (selection.size > 0) {
+        moveFlash = { entityId: Array.from(selection)[0], progress: 0 };
+      }
+    }
+  } else {
+    // Left click: selection
+    if (event.detail === 1) {
+      // Single click - select/deselect unit
+      const hoveredEntity = findEntityAtScreenPos(clickX, clickY);
+      if (hoveredEntity !== null) {
+        if (selection.has(hoveredEntity)) {
+          selection.delete(hoveredEntity);
+        } else {
+          selection.add(hoveredEntity);
+        }
+      } else {
+        // Click on empty space - start band box
+        isBandBoxing = true;
+        bandBoxStart = { x: clickX, y: clickY };
+        bandBoxEnd = { x: clickX, y: clickY };
+      }
+    } else if (event.detail === 2) {
+      // Double click - select same type
+      const hoveredEntity = findEntityAtScreenPos(clickX, clickY);
+      if (hoveredEntity !== null) {
+        const entityType = sim.getEntityStore().get(hoveredEntity)?.components.type;
+        if (entityType) {
+          // Clear selection and select all units of same type
+          selection.clear();
+          for (const entity of sim.getEntityStore().all()) {
+            if (entity.components.type === entityType) {
+              selection.add(entity.id);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function findEntityAtScreenPos(sx: number, sy: number): number | null {
+  for (const entity of sim.getEntityStore().all()) {
+    const screenPos = worldToScreen(entity.components.x, entity.components.y, camera);
+    const entitySize = 16; // harvester/refinery size
+    if (Math.abs(screenPos.sx - sx) < entitySize && Math.abs(screenPos.sy - sy) < entitySize) {
+      return entity.id;
+    }
+  }
+  return null;
 }
 
 function gameLoop(timestamp: number) {
@@ -102,6 +192,14 @@ function gameLoop(timestamp: number) {
   if (elapsed >= tickInterval) {
     sim.tick();
     lastTime = timestamp;
+    
+    // Update move flash
+    if (moveFlash) {
+      moveFlash.progress += 0.1;
+      if (moveFlash.progress >= 1) {
+        moveFlash = null;
+      }
+    }
   }
 
   // Get sim state
@@ -118,7 +216,7 @@ function gameLoop(timestamp: number) {
       drawTerrain(state.map, camera, ctx, canvas.width, canvas.height);
 
       // Draw entities using the contract
-      drawEntities(sim.getEntityStore().all(), camera, ctx, selection);
+      drawEntities(sim.getEntityStore().all(), camera, ctx, selection, isBandBoxing ? bandBoxStart : undefined, isBandBoxing ? bandBoxEnd : undefined, moveFlash || undefined);
     }
   }
 
@@ -128,6 +226,100 @@ function gameLoop(timestamp: number) {
 // Start the game loop
 requestAnimationFrame(gameLoop);
 
+// Add event listeners for input
+if (canvas) {
+  canvas.addEventListener('click', (e) => handleCanvasClick(e));
+  canvas.addEventListener('mousedown', (e) => {
+    if (e.button === 0) { // Left mouse button
+      const rect = canvas.getBoundingClientRect();
+      bandBoxStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      bandBoxEnd = { x: bandBoxStart.x, y: bandBoxStart.y };
+    }
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (isBandBoxing) {
+      const rect = canvas.getBoundingClientRect();
+      bandBoxEnd = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+  });
+
+  canvas.addEventListener('mouseup', (e) => {
+    if (e.button === 0 && isBandBoxing) {
+      // Finish band box selection
+      const entitiesInBandBox = findEntitiesInBandBox(
+        Math.min(bandBoxStart.x, bandBoxEnd.x),
+        Math.min(bandBoxStart.y, bandBoxEnd.y),
+        Math.max(bandBoxStart.x, bandBoxEnd.x),
+        Math.max(bandBoxStart.y, bandBoxEnd.y)
+      );
+      
+      // Add entities to selection (don't clear first)
+      for (const entityId of entitiesInBandBox) {
+        selection.add(entityId);
+      }
+      
+      isBandBoxing = false;
+    }
+  });
+
+  canvas.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    handleCanvasClick(e, true);
+  });
+}
+
+// Keyboard controls
+document.addEventListener('keydown', (e) => {
+  // Number keys 0-9 for selection
+  if (e.key >= '0' && e.key <= '9') {
+    if (e.ctrlKey) {
+      // Ctrl+0-9: assign control group
+      // This would normally store selection in controlGroups[index]
+    } else {
+      // 0-9: select control group  
+      // This would normally load from controlGroups[index]
+    }
+  } else {
+    switch (e.key.toLowerCase()) {
+      case 'a':
+        // Attack move
+        if (selection.size > 0) {
+          // Find all entities under shift + click
+          // For now, just move to mouse position
+          const tx = Math.floor(bandBoxEnd.x / 32);
+          const ty = Math.floor(bandBoxEnd.y / 32);
+          for (const entityId of selection) {
+            sim.enqueue({ tick: 1, playerId: 0, type: 'move', args: [entityId, tx, ty] });
+          }
+        }
+        break;
+      case 's':
+        // Stop command
+        if (selection.size > 0) {
+          for (const entityId of selection) {
+            sim.enqueue({ tick: 1, playerId: 0, type: 'stop', args: [entityId] });
+          }
+        }
+        break;
+    }
+  }
+});
+
+function findEntitiesInBandBox(minX: number, minY: number, maxX: number, maxY: number): number[] {
+  const entities: number[] = [];
+  const entitySize = 16;
+  
+  for (const entity of sim.getEntityStore().all()) {
+    const screenPos = worldToScreen(entity.components.x, entity.components.y, camera);
+    if (screenPos.sx > minX - entitySize && screenPos.sx < maxX + entitySize &&
+        screenPos.sy > minY - entitySize && screenPos.sy < maxY + entitySize) {
+      entities.push(entity.id);
+    }
+  }
+  return entities;
+}
+
 // Expose debug hooks for liveness tests
 if (typeof import.meta !== 'undefined') {
   (window as any).__debugEntityScreenPos = (id: number) => {
@@ -136,6 +328,10 @@ if (typeof import.meta !== 'undefined') {
     
     const screenPos = worldToScreen(entity.components.x, entity.components.y, camera);
     return { sx: screenPos.sx, sy: screenPos.sy };
+  };
+
+  (window as any).__debugSelectionCount = () => {
+    return selection.size;
   };
 }
 
