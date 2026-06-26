@@ -19,10 +19,10 @@ import { worldToScreen, TILE_PX } from '../sim/core/coords.js';
 export interface Camera { x: number; y: number; zoom: number; }
 
 export function render(
-  state: SimState,
-  cam: Camera,
-  selection: Set<EntityId>,
-  alpha: number
+  _state: SimState,
+  _cam: Camera,
+  _selection: Set<EntityId>,
+  _alpha: number
 ): void {
   // This will be implemented later
 }

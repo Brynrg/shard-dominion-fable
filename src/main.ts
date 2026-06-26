@@ -88,11 +88,21 @@ let bandBoxStart = { x: 0, y: 0 };
 let bandBoxEnd = { x: 0, y: 0 };
 let moveFlash: { entityId: number; progress: number } | null = null;
 
-// Build state
-let isBuilding = false;
-let buildType: string | null = null;
-let placementPreview: { x: number; y: number; valid: boolean } | null = null;
-let isPlacing = false;
+// Build state (used in sidebar rendering)
+let _isBuilding = false;
+let _buildType: string | null = null;
+let _placementPreview: { x: number; y: number; valid: boolean } | null = null;
+let _isPlacing = false;
+
+// Convert world coordinates to screen coordinates
+function _screenToWorld(x: number, y: number, cam: Camera) {
+  return { x: x/cam.zoom - cam.x, y: y/cam.zoom - cam.y };
+}
+
+// Handle sidebar clicks
+function _handleSidebarClick(x: number, y: number) {
+  // Implementation would go here
+}
 
 function worldToScreen(x: number, y: number, cam: Camera) {
   const TILE_PX = 32;

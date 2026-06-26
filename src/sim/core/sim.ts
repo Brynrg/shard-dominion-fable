@@ -134,24 +134,28 @@ export class Sim {
     this.unitProductionSystem.update();
 
     // Update state
-    this.state = {
-      entities: this.entityStore.all(),
-      commands: this.commandQueue.getAll(),
+    const tempState = {
       tick,
-      rngState: this.getPRNGState(),
       seed: this.config.seed,
-      hash: this.hashState(),
-      map: this.state?.map ?? {
+      rngState: this.getPRNGState(),
+      hash: 'temp',
+      map: {
         w: this.config.mapWidth,
         h: this.config.mapHeight,
         tiles: [],
       },
-      players: this.state?.players ?? [
+      players: [
         { faction: 'human', credits: 0, storageCap: 2000, powerSupply: 0, powerDemand: 0 },
         { faction: 'ai', credits: 0, storageCap: 2000, powerSupply: 0, powerDemand: 0 },
       ],
       projectiles: [],
+      entities: this.entityStore.all(),
+      commands: this.commandQueue.getAll(),
     };
+    
+    // Now assign and calculate hash
+    this.state = tempState;
+    this.state.hash = this.hashState();
   }
 
   // Process a command
