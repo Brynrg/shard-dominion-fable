@@ -5,7 +5,9 @@ import { fnv1aHashString } from './hash.js';
 import { EntityStore } from './entity-store.js';
 import { CommandQueue } from './command-queue.js';
 import { TickLoop } from './tick-loop.js';
-import type { Command, SimConfig, SimState, TerrainTile, TerrainType, Vector2, EntityId, BuildingState, UnitState, ProjectileState } from './types.js';
+import { tileToWorldCenter } from './coords.js';
+import type { Command, SimConfig, SimState } from './types.js';
+import type { Components } from './entity.js';
 
 export class Sim {
   private prng: PRNG;
@@ -27,14 +29,14 @@ export class Sim {
   // Generate map with terrain and shard density
     private generateMap(): void {
       const { mapWidth, mapHeight } = this.config;
-      const tiles: TerrainTile[] = [];
+      const tiles: any[] = [];  // Use any for now
 
       // Simple terrain generation: mostly SAND, some ROCK, occasional DEEP_SAND
       for (let y = 0; y < mapHeight; y++) {
         for (let x = 0; x < mapWidth; x++) {
           const noise = this.prng.next() * 100;
 
-          let type: TerrainType = 'SAND';
+          let type: string = 'SAND';
           if (noise < 15) {
             type = 'ROCK';
           } else if (noise < 20) {
@@ -51,38 +53,33 @@ export class Sim {
             shardDensity = Math.floor(this.prng.next() * 1000) + 500;
           }
 
-          tiles.push({ type, shardDensity });
+          tiles.push({ terrain: type, shard: shardDensity, explored: [false, false] });
         }
       }
 
-      this.state = {
-        entities: [],
-        commands: [],
-        tick: 0,
-        rngState: this.getPRNGState(),
-        hash: this.hashState(),
-        map: {
-          width: this.config.mapWidth,
-          height: this.config.mapHeight,
+      // assign into state.map.tiles directly (the round-1 discard bug was writing tiles[] and dropping it)
+      if (!this.state) {
+        this.state = {
+          entities: [],
+          commands: [],
+          tick: 0,
+          rngState: this.getPRNGState(),
+          hash: this.hashState(),
+          map: {
+            w: this.config.mapWidth,
+            h: this.config.mapHeight,
+            tiles: tiles,
+          },
+          players: [],
+          projectiles: [],
+        };
+      } else {
+        this.state.map = {
+          w: this.config.mapWidth,
+          h: this.config.mapHeight,
           tiles: tiles,
-        },
-        economy: {
-          credits: 0,
-          storage: 0,
-          maxStorage: 2000,
-          harvesters: [],
-          refineries: [],
-        },
-        buildings: [],
-        power: {
-          supply: 0,
-          demand: 0,
-          deficit: 0,
-          productionMultiplier: 1.0,
-        },
-        units: [],
-        projectiles: [],
-      };
+        };
+      }
     }
 
   // Enqueue a command
@@ -112,21 +109,18 @@ export class Sim {
 
     // Update state
     this.state = {
-      entities: this.entityStore.getAll(),
+      entities: this.entityStore.all(),
       commands: this.commandQueue.getAll(),
       tick,
       rngState: this.getPRNGState(),
       hash: this.hashState(),
       map: this.state?.map ?? {
-        width: this.config.mapWidth,
-        height: this.config.mapHeight,
+        w: this.config.mapWidth,
+        h: this.config.mapHeight,
         tiles: [],
       },
-      economy: this.state?.economy,
-      buildings: this.state?.buildings,
-      power: this.state?.power,
-      units: this.state?.units,
-      projectiles: this.state?.projectiles,
+      players: [],
+      projectiles: [],
     };
   }
 
@@ -134,10 +128,19 @@ export class Sim {
   private processCommand(command: Command): void {
     switch (command.type) {
       case 'move': {
-        const entity = this.entityStore.get(command.playerId);
-        if (entity) {
-          entity.components.x = command.args[0];
-          entity.components.y = command.args[1];
+        // Handle move command: args = [entityId, tx, ty] for move to tile
+        if (command.args.length >= 3) {
+          const entityId = command.args[0] as EntityId;
+          const tx = command.args[1] as number;
+          const ty = command.args[2] as number;
+          
+          // Convert tile position to world position
+          const worldPos = tileToWorldCenter(tx, ty);
+          const entity = this.entityStore.get(entityId);
+          if (entity) {
+            entity.components.x = worldPos.x;
+            entity.components.y = worldPos.y;
+          }
         }
         break;
       }

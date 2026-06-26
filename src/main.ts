@@ -8,18 +8,10 @@ import { SpeedrunTimer } from "speedrungames-sdk/timer";
 import { createHUD } from "speedrungames-sdk/hud";
 import { createStorage } from "speedrungames-sdk/storage";
 import { Sim } from "./sim/index.js";
+import { tileToWorldCenter } from "./sim/core/coords.js";
+import { drawTerrain, drawEntities } from "./view/render.js";
+import type { Camera } from "./view/render.js";
 import "./styles.css";
-
-// Global for requestAnimationFrame
-declare global {
-  interface Window {
-    requestAnimationFrame: (callback: (timestamp: number) => void) => number;
-    cancelAnimationFrame: (handle: number) => void;
-  }
-}
-
-// Fallback for node environment
-declare const requestAnimationFrame: (callback: (timestamp: number) => void) => number;
 
 // Must match game.manifest.json#slug. `pnpm new:game` substitutes this.
 const SLUG: string = "shard-dominion-fable";
@@ -57,132 +49,94 @@ const SIM_CONFIG = {
   seed: 12345,
 };
 
+// Camera for rendering
+const camera: Camera = { x: 0, y: 0, zoom: 1 };
+const selection = new Set<number>();
+
 // Create the sim
 const sim = new Sim(SIM_CONFIG);
 sim.getTickLoop().start();
 
-// Add a few entities to the sim
-sim.getEntityStore().create({
-  id: 1,
-  components: {
-    type: "player",
-    x: 50,
-    y: 50,
-    hp: 100,
-    maxHp: 100,
-  },
+// Add entities to the sim
+const refPos = tileToWorldCenter(20, 20);
+const ref = sim.getEntityStore().create({
+  type: 'refinery',
+  owner: 0,
+  x: refPos.x,
+  y: refPos.y,
+  hp: 900,
+  maxHp: 900,
+  building: { onSlab: true, buildProgress: 1, upgraded: false, powerDrain: 30 }
 });
 
-sim.getEntityStore().create({
-  id: 2,
-  components: {
-    type: "enemy",
-    x: 30,
-    y: 30,
-    hp: 50,
-    maxHp: 50,
-  },
+const hvPos = tileToWorldCenter(40, 40);
+const hv = sim.getEntityStore().create({
+  type: 'harvester',
+  owner: 0,
+  x: hvPos.x,
+  y: hvPos.y,
+  hp: 700,
+  maxHp: 700,
+  harvester: { state: 'SEEK', load: 0, refineryId: ref }
 });
 
-// Add a command to move the player
-sim.enqueue({
-  tick: 0,
-  playerId: 1,
-  type: "move",
-  args: [60, 60], // target x, y
-});
+// sim.enqueue({tick:1,playerId:0,type:'move',args:{ids:[hv],tx:30,ty:30}});  // temporary, proves motion
+sim.enqueue({ tick: 1, playerId: 0, type: 'move', args: [hv, 30, 30] });  // temporary, proves motion
 
 // Render loop: update sim and draw
 let lastTime = 0;
 const tickInterval = 1000 / SIM_CONFIG.tickRate;
 
+function worldToScreen(x: number, y: number, cam: Camera) {
+  const TILE_PX = 32;
+  return { 
+    sx: (x / 256 * TILE_PX - cam.x) * cam.zoom,
+    sy: (y / 256 * TILE_PX - cam.y) * cam.zoom
+  };
+}
+
 function gameLoop(timestamp: number) {
   const elapsed = timestamp - (lastTime || 0);
 
+  // Update sim tick
   if (elapsed >= tickInterval) {
-    // Update sim tick
     sim.tick();
+    lastTime = timestamp;
+  }
 
-    // Get sim state
-    const state = sim.getState();
-    if (state) {
-      // Draw sim state
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        // Clear canvas
-        ctx.fillStyle = "#0b0b10";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Get sim state
+  const state = sim.getState();
+  if (state) {
+    // Draw sim state using render contract
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      // Clear canvas
+      ctx.fillStyle = "#0b0b10";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw terrain tiles
-        const map = state.map;
-        if (map) {
-          const tileSize = Math.min(
-            canvas.width / map.width,
-            canvas.height / map.height
-          );
-          const offsetX = (canvas.width - map.width * tileSize) / 2;
-          const offsetY = (canvas.height - map.height * tileSize) / 2;
+      // Draw terrain using the contract
+      drawTerrain(state.map, camera, ctx, canvas.width, canvas.height);
 
-          for (let y = 0; y < map.height; y++) {
-            for (let x = 0; x < map.width; x++) {
-              const tile = map.tiles[y * map.width + x];
-              const px = offsetX + x * tileSize;
-              const py = offsetY + y * tileSize;
-
-              // Draw tile based on type
-              if (tile.type === 'ROCK') {
-                ctx.fillStyle = "#4a4a4a";
-              } else if (tile.type === 'SAND') {
-                ctx.fillStyle = "#c2b280";
-              } else if (tile.type === 'DEEP_SAND') {
-                ctx.fillStyle = "#8b7355";
-              } else if (tile.type === 'DUNE') {
-                ctx.fillStyle = "#d2b48c";
-              } else {
-                ctx.fillStyle = "#0b0b10";
-              }
-
-              ctx.fillRect(px, py, tileSize, tileSize);
-
-              // Draw shard density indicator (small dot)
-              if (tile.shardDensity > 0) {
-                ctx.fillStyle = "#ffd700";
-                const dotSize = Math.min(tileSize * 0.2, 4);
-                ctx.fillRect(
-                  px + tileSize / 2 - dotSize / 2,
-                  py + tileSize / 2 - dotSize / 2,
-                  dotSize,
-                  dotSize
-                );
-              }
-            }
-          }
-        }
-
-        // Draw entities
-        for (const entity of state.entities) {
-          const x = (entity.components.x as number) * (canvas.width / SIM_CONFIG.mapWidth);
-          const y = (entity.components.y as number) * (canvas.height / SIM_CONFIG.mapHeight);
-          const size = 10;
-
-          // Draw entity based on type
-          if (entity.components.type === "player") {
-            ctx.fillStyle = "#00ff00";
-            ctx.fillRect(x - size/2, y - size/2, size, size);
-          } else if (entity.components.type === "enemy") {
-            ctx.fillStyle = "#ff0000";
-            ctx.fillRect(x - size/2, y - size/2, size, size);
-          }
-        }
-      }
+      // Draw entities using the contract
+      drawEntities(sim.getEntityStore().all(), camera, ctx, selection);
     }
   }
 
-  lastTime = timestamp;
   requestAnimationFrame(gameLoop);
 }
 
 // Start the game loop
 requestAnimationFrame(gameLoop);
+
+// Expose debug hooks for liveness tests
+if (typeof import.meta !== 'undefined') {
+  (window as any).__debugEntityScreenPos = (id: number) => {
+    const entity = sim.getEntityStore().get(id);
+    if (!entity) return null;
+    
+    const screenPos = worldToScreen(entity.components.x, entity.components.y, camera);
+    return { sx: screenPos.sx, sy: screenPos.sy };
+  };
+}
 
 // ─── End gameplay ───────────────────────────────────────────────────────────

@@ -27,17 +27,19 @@ export interface SimConfig {
 }
 
 export interface SimState {
-  entities: Entity[];
-  commands: Command[];
   tick: Tick;
+  seed: number; 
   rngState: number;
-  hash: string;
-  map?: MapData;
-  economy?: EconomyState;
-  buildings?: BuildingState[];
-  power?: PowerState;
-  units?: UnitState[];
-  projectiles?: ProjectileState[];
+  map: { 
+    w: number; 
+    h: number; 
+    tiles: Tile[]   // FLAT array, length w*h, index = ty*w + tx
+  };
+  players: PlayerState[];                           // index = player id
+  projectiles: Projectile[];
+  // NOTE: harvesters/refineries/units/buildings are NOT separate arrays.
+  // They are entities in the store. The store is the single source of truth.
+  // economy.credits/power live on PlayerState, computed from entities each tick.
 }
 
 export interface Entity {
@@ -45,15 +47,10 @@ export interface Entity {
   components: Record<string, unknown>;
 }
 
-export interface MapData {
-  width: number;
-  height: number;
-  tiles: TerrainTile[];
-}
-
-export interface TerrainTile {
-  type: TerrainType;
-  shardDensity: number; // 0-1000 per tile
+export interface Tile { 
+  terrain: string; // TerrainType;
+  shard: number;   // 0-1000 per tile
+  explored: boolean[] /* per player */; 
 }
 
 // Economy types
@@ -134,20 +131,12 @@ export interface UnitState {
   };
 }
 
-// Combat types
-export interface ProjectileState {
-  entityId: EntityId;
-  type: string;
+export interface Projectile {
+  id: number;
   x: number;
   y: number;
-  targetEntityId: EntityId | null;
-  targetTile: Vector2 | null;
-  speed: number;
   damage: number;
-  damageType: 'BULLET' | 'ROCKET' | 'SHELL' | 'SIEGE' | 'FLAME' | 'SONIC' | 'EXPLOSIVE';
-  travelTime: number;
-  travelDistance: number;
-  friendlyFire: boolean;
+  faction: number;
 }
 
 // Damage matrix
