@@ -3,7 +3,6 @@
 export type PlayerId = number;
 export type EntityId = number;
 export type Tick = number;
-
 export type TerrainType = 'ROCK' | 'SAND' | 'DEEP_SAND' | 'DUNE' | 'CLIFF';
 
 export interface Vector2 {
@@ -30,6 +29,7 @@ export interface SimState {
   tick: Tick;
   seed: number; 
   rngState: number;
+  hash: string;
   map: { 
     w: number; 
     h: number; 
@@ -37,9 +37,26 @@ export interface SimState {
   };
   players: PlayerState[];                           // index = player id
   projectiles: Projectile[];
-  // NOTE: harvesters/refineries/units/buildings are NOT separate arrays.
-  // They are entities in the store. The store is the single source of truth.
-  // economy.credits/power live on PlayerState, computed from entities each tick.
+  entities: Entity[];                                // All entities in the store
+  commands: Command[];                               // All commands processed
+  // Economy state
+  economy?: {
+    credits: number;
+    storage: number;
+    harvesters: { entityId: EntityId; state: HarvesterState }[];
+    refineries: { entityId: EntityId; credits: number }[];
+  };
+  // Power state
+  power?: {
+    supply: number;
+    demand: number;
+    deficit: number;
+    productionMultiplier: number;
+  };
+  // Building state
+  buildings?: BuildingState[];
+  // Unit state  
+  units?: UnitState[];
 }
 
 export interface Entity {
@@ -51,6 +68,14 @@ export interface Tile {
   terrain: string; // TerrainType;
   shard: number;   // 0-1000 per tile
   explored: boolean[] /* per player */; 
+}
+
+export interface PlayerState {
+  faction: string;
+  credits: number;
+  storageCap: number;
+  powerSupply: number;
+  powerDemand: number;
 }
 
 // Economy types
@@ -65,11 +90,10 @@ export interface EconomyState {
 export interface HarvesterState {
   entityId: EntityId;
   state: 'SEEK' | 'HARVEST' | 'RETURN' | 'DOCK';
-  targetTile: Vector2 | null;
-  targetRefinery: EntityId | null;
-  credits: number;
-  capacity: number;
-  lastHarvestTick: number;
+  load: number;
+  targetTile?: Vector2 | null;
+  targetRefinery?: EntityId | null;
+  lastHarvestTick?: number;
 }
 
 export interface RefineryState {

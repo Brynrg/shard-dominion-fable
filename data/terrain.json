@@ -1,0 +1,8 @@
+{
+  "economyConstants": {
+    "harvestRatePerSec": 25,
+    "harvesterCapacity": 700,
+    "unloadPerSec": 100,
+    "refineryStorage": 2000
+  }
+}

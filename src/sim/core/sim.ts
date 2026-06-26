@@ -6,7 +6,9 @@ import { EntityStore } from './entity-store.js';
 import { CommandQueue } from './command-queue.js';
 import { TickLoop } from './tick-loop.js';
 import { tileToWorldCenter } from './coords.js';
-import type { Command, SimConfig, SimState } from './types.js';
+import { HarvesterSystem } from '../systems/harvester.js';
+import { loadTerrainConfigSync } from '../loaders/terrain-loader.js';
+import type { Command, SimConfig, SimState, HarvesterState, BuildingState, UnitState } from './types.js';
 import type { Components } from './entity.js';
 
 export class Sim {
@@ -16,6 +18,8 @@ export class Sim {
   private tickLoop: TickLoop;
   private config: SimConfig;
   private state: SimState | null = null;
+  private harvesterSystem: HarvesterSystem;
+  private terrainConfig: any;
 
   constructor(config: SimConfig) {
     this.config = config;
@@ -23,6 +27,9 @@ export class Sim {
     this.entityStore = new EntityStore();
     this.commandQueue = new CommandQueue();
     this.tickLoop = new TickLoop(config.tickRate);
+    // Load terrain config and initialize systems
+    this.terrainConfig = loadTerrainConfigSync();
+    this.harvesterSystem = new HarvesterSystem(this, this.terrainConfig);
     this.generateMap();
   }
 
