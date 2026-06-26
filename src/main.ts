@@ -12,11 +12,7 @@ import { tileToWorldCenter } from "./sim/core/coords.js";
 import { drawTerrain, drawEntities } from "./view/render.js";
 import type { Camera } from "./view/render.js";
 import type { SimState } from "./sim/core/types.js";
-import { CombatSystem } from "./sim/systems/combat.js";
-import { ProjectileSystem } from "./sim/systems/projectile.js";
-import { UnitProductionSystem } from "./sim/systems/unit-production.js";
 import "./styles.css";
-
 // Must match game.manifest.json#slug. `pnpm new:game` substitutes this.
 const SLUG: string = "shard-dominion-fable";
 const UNSET_SLUG = "__SLUG__";

@@ -6,14 +6,12 @@ import { EntityStore } from './entity-store.js';
 import { CommandQueue } from './command-queue.js';
 import { TickLoop } from './tick-loop.js';
 import { tileToWorldCenter } from './coords.js';
-import { HarvesterSystem } from '../systems/harvester.js';
 import { BuildingSystem } from '../systems/building.js';
 import { CombatSystem } from '../systems/combat.js';
 import { ProjectileSystem } from '../systems/projectile.js';
 import { UnitProductionSystem } from '../systems/unit-production.js';
-import { loadTerrainConfigSync } from '../loaders/terrain-loader.js';
-import type { Command, SimConfig, SimState, BuildingState, UnitState } from './types.js';
-import type { Components, TilePt } from './entity.js';
+import type { Command, SimConfig, SimState, BuildingState, UnitState, EntityId } from './types.js';
+import type { TilePt } from './entity.js';
 
 export class Sim {
   private prng: PRNG;
@@ -22,12 +20,10 @@ export class Sim {
   private tickLoop: TickLoop;
   private config: SimConfig;
   private state: SimState | null = null;
-  private harvesterSystem: HarvesterSystem;
   private buildingSystem: BuildingSystem;
   private combatSystem: CombatSystem;
   private projectileSystem: ProjectileSystem;
   private unitProductionSystem: UnitProductionSystem;
-  private terrainConfig: any;
 
   constructor(config: SimConfig) {
     this.config = config;
@@ -35,9 +31,7 @@ export class Sim {
     this.entityStore = new EntityStore();
     this.commandQueue = new CommandQueue();
     this.tickLoop = new TickLoop(config.tickRate);
-    // Load terrain config and initialize systems
-    this.terrainConfig = loadTerrainConfigSync();
-    this.harvesterSystem = new HarvesterSystem(this, this.terrainConfig);
+    // Initialize systems
     this.buildingSystem = new BuildingSystem(this);
     this.combatSystem = new CombatSystem(this);
     this.projectileSystem = new ProjectileSystem(this);
@@ -82,6 +76,7 @@ export class Sim {
           entities: [],
           commands: [],
           tick: 0,
+          seed: this.getPRNGState(),
           rngState: this.getPRNGState(),
           hash: this.hashState(),
           map: {
@@ -89,7 +84,10 @@ export class Sim {
             h: this.config.mapHeight,
             tiles: tiles,
           },
-          players: [],
+          players: [
+            { faction: 'human', credits: 0, storageCap: 2000, powerSupply: 0, powerDemand: 0 },
+            { faction: 'ai', credits: 0, storageCap: 2000, powerSupply: 0, powerDemand: 0 },
+          ],
           projectiles: [],
         };
       } else {
@@ -148,7 +146,10 @@ export class Sim {
         h: this.config.mapHeight,
         tiles: [],
       },
-      players: [],
+      players: this.state?.players ?? [
+        { faction: 'human', credits: 0, storageCap: 2000, powerSupply: 0, powerDemand: 0 },
+        { faction: 'ai', credits: 0, storageCap: 2000, powerSupply: 0, powerDemand: 0 },
+      ],
       projectiles: [],
     };
   }
