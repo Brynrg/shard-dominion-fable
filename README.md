@@ -1,3 +1,7 @@
+> **Retired 2026-10-30.** This was an early Shard Dominion bake-off build and is no longer maintained or deployed.
+> The single active game is [Brynrg/shard-dominion](https://github.com/Brynrg/shard-dominion), playable at https://speedrungames.net/games/shard-dominion/.
+> Last source commit before retirement: `84333231b2a698b59883bc29ae7d8e21d68ecf07`. Deploy instructions below are historical; the deploy workflow is disabled.
+
 # speedrungames-game-template
 
 Vite + TypeScript starter for games that ship on [speedrungames.net](https://speedrungames.net).
